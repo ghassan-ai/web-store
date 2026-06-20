@@ -1,161 +1,85 @@
 'use client';
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, ShoppingBag, ArrowRight } from "lucide-react";
-import { subscribeToBanners } from "@/firebase/banners";
+import { useMemo } from "react";
+import Link from "next/link";
+import { ShoppingBag, MapPin } from "lucide-react";
 import { useLang } from "@/context/LanguageContext";
 import "./Hero.css";
 
-export default function Hero() {
+function ArcDots() {
+  return (
+    <div className="arc-dots" aria-hidden="true">
+      {/* Arc path (subtle circle outline) */}
+      <svg className="arc-path" viewBox="0 0 400 400" fill="none">
+        <circle cx="320" cy="120" r="80" stroke="rgba(45,212,191,0.08)" strokeWidth="0.5" />
+        <circle cx="350" cy="80" r="140" stroke="rgba(45,212,191,0.05)" strokeWidth="0.5" />
+      </svg>
+      {/* Scattered dots near top-right and header */}
+      <div className="arc-dot arc-dot--1" />
+      <div className="arc-dot arc-dot--2" />
+      <div className="arc-dot arc-dot--3" />
+      <div className="arc-dot arc-dot--4" />
+      <div className="arc-dot arc-dot--5" />
+      <div className="arc-dot arc-dot--6" />
+      <div className="arc-dot arc-dot--7" />
+      <div className="arc-dot arc-dot--8" />
+    </div>
+  );
+}
+
+export default function Hero({ products = [] }) {
   const { isAr } = useLang();
-  const router = useRouter();
-  const [banners, setBanners] = useState([]);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const intervalRef = useRef(null);
 
-  useEffect(() => {
-    const unsubscribe = subscribeToBanners((data) => {
-      setBanners(data.filter(b => b.imageBase64));
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const startAutoRotation = useCallback(() => {
-    clearInterval(intervalRef.current);
-    if (banners.length <= 1) return;
-    intervalRef.current = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % banners.length);
-    }, 4000);
-  }, [banners.length]);
-
-  useEffect(() => {
-    startAutoRotation();
-    return () => clearInterval(intervalRef.current);
-  }, [startAutoRotation]);
-
-  const handleBannerClick = () => {
-    const banner = banners[currentSlide];
-    if (banner?.productId) {
-      router.push(`/product/${banner.productId}`);
-    }
-  };
-
-  const goToPrev = (e) => {
-    e.stopPropagation();
-    setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
-    startAutoRotation();
-  };
-
-  const goToNext = (e) => {
-    e.stopPropagation();
-    setCurrentSlide((prev) => (prev + 1) % banners.length);
-    startAutoRotation();
-  };
-
-  const handleDotClick = (e, index) => {
-    e.stopPropagation();
-    setCurrentSlide(index);
-    startAutoRotation();
-  };
-
-  if (banners.length === 0) {
-    return (
-      <section className="hero-section hero-section--empty">
-        <div className="text-center px-4 relative z-10 max-w-3xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight font-tajawal">
-            {isAr ? "أحدث الهواتف، توصيل لكل لبنان" : "Latest Phones, Delivered Across Lebanon"}
-          </h1>
-          <p className="text-base sm:text-lg text-text-secondary max-w-2xl mx-auto mt-4 leading-relaxed">
-            {isAr
-              ? "أجهزة مميزة بأسعار تنافسية. توصيل مجاني لجميع أنحاء لبنان."
-              : "Premium devices at competitive prices. Free delivery across Lebanon."}
-          </p>
-          <button
-            onClick={() => router.push("/products")}
-            className="inline-flex items-center gap-2.5 bg-accent text-white font-bold px-8 py-4 rounded-full hover:bg-accent-hover hover:scale-[1.02] transition-all duration-300 font-tajawal mt-8"
-          >
-            <ShoppingBag size={20} />
-            {isAr ? "تسوّق الآن" : "Shop Now"}
-            <ArrowRight size={18} className="rtl:rotate-180" />
-          </button>
-
-          {/* Spec badges */}
-          <div className="hero-spec-badge hero-spec-badge--1" dir="ltr">256GB</div>
-          <div className="hero-spec-badge hero-spec-badge--2" dir="ltr">Triple Camera</div>
-          <div className="hero-spec-badge hero-spec-badge--3" dir="ltr">5G Ready</div>
-        </div>
-      </section>
-    );
-  }
+  const stats = useMemo(() => [
+    { value: "500+", label: isAr ? "منتج متوفر" : "Products" },
+    { value: "10K+", label: isAr ? "عميل سعيد" : "Happy Customers" },
+    { value: "50+", label: isAr ? "علامة تجارية" : "Brands" },
+    { value: "24/7", label: isAr ? "خدمات دائمة" : "Always Available" },
+  ], [isAr]);
 
   return (
-    <section className="hero-section" aria-label="Banner Slideshow">
-      {/* Spec badges floating around the banner */}
-      <div className="hero-spec-badge hero-spec-badge--1" dir="ltr">256GB</div>
-      <div className="hero-spec-badge hero-spec-badge--2" dir="ltr">Triple Camera</div>
-      <div className="hero-spec-badge hero-spec-badge--3" dir="ltr">5G Ready</div>
+    <section className="hero-new">
+      <div className="hero-grid-bg" aria-hidden="true" />
 
-      <div
-        className="hero-banner"
-        onClick={handleBannerClick}
-        role="link"
-        tabIndex={0}
-        aria-label={banners[currentSlide]?.productName || "View product"}
-        onKeyDown={(e) => { if (e.key === 'Enter') handleBannerClick(); }}
-      >
-        {banners.map((banner, index) => (
-          <div
-            key={banner.id}
-            className={`hero-slide ${index === currentSlide ? "hero-slide--active" : ""}`}
-            aria-hidden={index !== currentSlide}
-          >
-            <img
-              src={banner.imageBase64}
-              alt=""
-              className="hero-slide__bg"
-              aria-hidden="true"
-            />
-            <img
-              src={banner.imageBase64}
-              alt={banner.productName || `Slide ${index + 1}`}
-              className="hero-slide__img"
-              loading={index === 0 ? "eager" : "lazy"}
-            />
-          </div>
-        ))}
+      <ArcDots />
 
-        {banners.length > 1 && (
-          <>
-            <button
-              className="hero-arrow hero-arrow--prev"
-              onClick={goToPrev}
-              aria-label={isAr ? "الشريحة السابقة" : "Previous slide"}
-            >
-              {isAr ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-            </button>
-            <button
-              className="hero-arrow hero-arrow--next"
-              onClick={goToNext}
-              aria-label={isAr ? "الشريحة التالية" : "Next slide"}
-            >
-              {isAr ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-            </button>
-          </>
-        )}
-      </div>
+      <div className="hero-content">
+        <h1 className="hero-headline font-tajawal">
+          {isAr ? "متجر الهواتف: وجهتك الأولى" : "Phone Store: Your First Destination"}
+        </h1>
 
-      {banners.length > 1 && (
-        <div className="hero-dots">
-          {banners.map((_, index) => (
-            <button
-              key={index}
-              onClick={(e) => handleDotClick(e, index)}
-              className={`hero-dot ${index === currentSlide ? "hero-dot--active" : ""}`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
+        {/* Subtitle */}
+        <p className="hero-subtitle font-tajawal">
+          {isAr
+            ? "أرخص اكسسوارات الهواتف المتدرة في لبنان - جودة يمكنك الوثوق بها"
+            : "The most affordable phone accessories in Lebanon - quality you can trust"}
+        </p>
+
+        {/* CTAs */}
+        <div className="hero-ctas">
+          <Link href="/products" className="hero-btn hero-btn--solid font-tajawal">
+            <ShoppingBag size={18} />
+            {isAr ? "تسوّق الآن" : "Shop Now"}
+          </Link>
+          <Link href="/track-order" className="hero-btn hero-btn--outline font-tajawal">
+            <MapPin size={18} />
+            {isAr ? "تتبع طلبك" : "Track Order"}
+          </Link>
+        </div>
+
+        {/* Trust Indicators */}
+        <div className="hero-stats" dir="ltr">
+          {stats.map((stat) => (
+            <div key={stat.label} className="hero-stat">
+              <span className="hero-stat__value font-mono">
+                {stat.value}
+              </span>
+              <span className="hero-stat__label font-tajawal">
+                {stat.label}
+              </span>
+            </div>
           ))}
         </div>
-      )}
+      </div>
     </section>
   );
 }

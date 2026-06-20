@@ -22,30 +22,34 @@ export const CartProvider = ({ children }) => {
     } catch { }
   }, [cartItems, hydrated]);
 
-  const addToCart = (product) => {
+  const addToCart = (product, selections) => {
+    const cartKey = selections
+      ? `${product.id}_${JSON.stringify(selections)}`
+      : product.id;
+
     setCartItems(prevItems => {
-      const existing = prevItems.find(item => item.id === product.id);
+      const existing = prevItems.find(item => item.cartKey === cartKey);
       if (existing) {
         return prevItems.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.cartKey === cartKey ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prevItems, { ...product, quantity: 1 }];
+      return [...prevItems, { ...product, cartKey, selections: selections || null, quantity: 1 }];
     });
   };
 
-  const removeFromCart = (id) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+  const removeFromCart = (cartKey) => {
+    setCartItems(prevItems => prevItems.filter(item => (item.cartKey || item.id) !== cartKey));
   };
 
-  const updateQuantity = (id, quantity) => {
+  const updateQuantity = (cartKey, quantity) => {
     if (quantity <= 0) {
-      removeFromCart(id);
+      removeFromCart(cartKey);
       return;
     }
     setCartItems(prevItems =>
       prevItems.map(item =>
-        item.id === id ? { ...item, quantity } : item
+        (item.cartKey || item.id) === cartKey ? { ...item, quantity } : item
       )
     );
   };

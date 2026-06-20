@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from "react";
-import { subscribeToProducts } from "@/firebase/products";
+import { subscribeToProducts } from "@/supabase/products";
 import ProductQuiz from "@/components/ProductQuiz/ProductQuiz";
 
 export default function QuizPage() {

@@ -1,7 +1,7 @@
 'use client';
 import React from "react";
 import { useRouter } from "next/navigation";
-import { signIn, onAuthChange } from "@/firebase/auth";
+import { signIn, onAuthChange } from "@/supabase/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState("");

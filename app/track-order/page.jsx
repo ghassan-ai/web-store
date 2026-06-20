@@ -4,7 +4,7 @@ import { Search, Package, CheckCircle2, Circle, Truck, PackageCheck, Clock } fro
 import Link from "next/link";
 import { useLang } from "@/context/LanguageContext";
 import siteConfig from "@/config/siteConfig";
-import { subscribeToOrderByNumber } from "@/firebase/orders";
+import { subscribeToOrderByNumber } from "@/supabase/orders";
 
 const STATUS_STEPS = [
   { key: "pending", labelAr: "تم استلام الطلب", labelEn: "Order Received", icon: Clock },

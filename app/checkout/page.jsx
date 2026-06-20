@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Check, MapPin, CreditCard, ShoppingBag, MessageCircle } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
-import { createOrder } from "@/firebase/orders";
+import { createOrder } from "@/supabase/orders";
 import siteConfig from "@/config/siteConfig";
 import { handleImgError } from "@/utils/imageHelpers";
 
@@ -92,7 +92,14 @@ export default function CheckoutPage() {
     }
     setErrors({});
 
-    const itemsText = cartItems.map((i) => `• ${i.name} × ${i.quantity} — $${i.price * i.quantity}`).join("\n");
+    const itemsText = cartItems.map((i) => {
+      let line = `• ${i.name} × ${i.quantity} — $${i.price * i.quantity}`;
+      if (i.selections) {
+        const opts = Object.entries(i.selections).map(([k, v]) => `${k === 'color' ? (isAr ? 'اللون' : 'Color') : k}: ${v}`).join(', ');
+        line += `\n  (${opts})`;
+      }
+      return line;
+    }).join("\n");
     const text = isAr
       ? `مرحباً، أريد تقديم طلب:\n\nالاسم: ${form.name}\nالهاتف: ${form.phone}\nالمدينة: ${form.city}\nالعنوان: ${form.address}\n${form.notes ? "ملاحظات: " + form.notes + "\n" : ""}\nالمنتجات:\n${itemsText}\n\nالمجموع الفرعي: $${subtotal}\nالتوصيل: ${deliveryFee === 0 ? "مجاني" : "$" + deliveryFee}\nالإجمالي: $${total}`
       : `Hi, I'd like to place an order:\n\nName: ${form.name}\nPhone: ${form.phone}\nCity: ${form.city}\nAddress: ${form.address}\n${form.notes ? "Notes: " + form.notes + "\n" : ""}\nProducts:\n${itemsText}\n\nSubtotal: $${subtotal}\nDelivery: ${deliveryFee === 0 ? "Free" : "$" + deliveryFee}\nTotal: $${total}`;
@@ -277,7 +284,7 @@ export default function CheckoutPage() {
 
               <div className="space-y-3 mb-5 max-h-64 overflow-y-auto">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3">
+                  <div key={item.cartKey || item.id} className="flex items-center gap-3">
                     <img
                       loading="lazy"
                       src={item.imageUrl || ""}
@@ -287,6 +294,15 @@ export default function CheckoutPage() {
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-white truncate font-tajawal">{item.name}</p>
+                      {item.selections && (
+                        <div className="flex flex-wrap gap-x-2">
+                          {Object.entries(item.selections).map(([key, val]) => (
+                            <span key={key} className="text-[10px] text-accent">
+                              {key === 'color' ? (isAr ? 'اللون' : 'Color') : key}: {val}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       <p className="text-xs text-text-secondary">×{item.quantity}</p>
                     </div>
                     <span className="text-sm font-bold text-white font-mono" dir="ltr">${item.price * item.quantity}</span>

@@ -2,10 +2,9 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { subscribeToProducts } from "@/firebase/products";
+import { subscribeToProducts } from "@/supabase/products";
 import { useLang } from "@/context/LanguageContext";
 import Hero from "@/components/Hero/Hero";
-import Stats from "@/components/Stats/Stats";
 import CategoryGrid from "@/components/CategoryGrid/CategoryGrid";
 import NewArrivals from "@/components/NewArrivals/NewArrivals";
 import ProductQuiz from "@/components/ProductQuiz/ProductQuiz";
@@ -55,8 +54,7 @@ export default function HomePage() {
 
   return (
     <div className="bg-primary">
-      <Hero />
-      <Stats products={products} />
+      <Hero products={products} />
       <CategoryGrid />
       <NewArrivals products={products} loading={loading} />
       <PromoBanner />

@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ShoppingCart, MessageCircle } from "lucide-react";
-import { subscribeToProducts } from "@/firebase/products";
+import { subscribeToProducts } from "@/supabase/products";
 import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
 import siteConfig from "@/config/siteConfig";
@@ -20,6 +20,8 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState({});
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -42,14 +44,33 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!product) return;
+    const selections = {};
+    if (selectedColor) selections.color = selectedColor;
+    if (product.customOptions?.length > 0) {
+      product.customOptions.forEach((group) => {
+        if (selectedOptions[group.id]) {
+          selections[group.title] = selectedOptions[group.id];
+        }
+      });
+    }
+    const hasSelections = Object.keys(selections).length > 0;
     for (let i = 0; i < quantity; i++) {
-      addToCart(product);
+      addToCart(product, hasSelections ? selections : null);
     }
   };
 
   const handleWhatsApp = () => {
     if (!product) return;
-    const text = `مرحباً، أريد طلب هذا المنتج:\n\nالمنتج: ${product.name}\nالكمية: ${quantity}\nالسعر: $${product.price}`;
+    let optionsText = '';
+    if (selectedColor) optionsText += `\nاللون: ${selectedColor}`;
+    if (product.customOptions?.length > 0) {
+      product.customOptions.forEach((group) => {
+        if (selectedOptions[group.id]) {
+          optionsText += `\n${group.title}: ${selectedOptions[group.id]}`;
+        }
+      });
+    }
+    const text = `مرحباً، أريد طلب هذا المنتج:\n\nالمنتج: ${product.name}${optionsText}\nالكمية: ${quantity}\nالسعر: $${product.price}`;
 
     window.open(
       `https://wa.me/${siteConfig.contact.whatsapp}?text=${encodeURIComponent(text)}`,
@@ -100,11 +121,11 @@ export default function ProductDetailPage() {
         <div className="bg-card rounded-2xl border border-card-border overflow-hidden">
           <div className="grid md:grid-cols-2 gap-0">
             {/* Image */}
-            <div className="aspect-square bg-white overflow-hidden">
+            <div className="aspect-square bg-white overflow-hidden cursor-pointer" onClick={() => setLightboxOpen(true)}>
               <img
                 src={product.imageUrl || ""}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 onError={handleImgError}
               />
             </div>
@@ -150,6 +171,27 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
               )}
+
+              {product.customOptions?.length > 0 && product.customOptions.map((group) => (
+                <div key={group.id} className="mb-4">
+                  <p className="text-sm font-semibold text-text-secondary font-tajawal mb-2">{group.title}:</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {group.values.map((val, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedOptions(prev => ({ ...prev, [group.id]: val }))}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                          selectedOptions[group.id] === val
+                            ? 'bg-accent text-white border-accent ring-2 ring-offset-2 ring-accent ring-offset-card scale-105'
+                            : 'bg-card border-card-border text-text-secondary hover:border-accent hover:text-white hover:scale-105'
+                        }`}
+                      >
+                        {val}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
 
               <div className="mb-4">
                 <span className={`text-sm font-medium ${isOutOfStock ? "text-accent-rose" : "text-accent-emerald"}`}>
@@ -233,6 +275,26 @@ export default function ProductDetailPage() {
           </div>
         )}
       </div>
+
+      {lightboxOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <button
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-4 right-4 text-white/80 hover:text-white text-3xl font-bold z-10"
+          >
+            &times;
+          </button>
+          <img
+            src={product.imageUrl || ""}
+            alt={product.name}
+            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }

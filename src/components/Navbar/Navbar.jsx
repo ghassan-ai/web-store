@@ -80,8 +80,15 @@ function Navbar({ cartCount = 0, onCartClick }) {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 flex-shrink-0" onClick={() => setMobileOpen(false)}>
-              <div className="nav-logo-badge">
-                <span>PH</span>
+              <div className="nav-logo-orbit" aria-hidden="true">
+                <svg viewBox="0 0 36 36" width="36" height="36">
+                  <circle cx="18" cy="18" r="12" fill="none" stroke="rgba(45,212,191,0.3)" strokeWidth="0.8" />
+                  <circle cx="18" cy="18" r="8" fill="none" stroke="rgba(45,212,191,0.5)" strokeWidth="0.8" />
+                  <circle cx="18" cy="18" r="4" fill="none" stroke="rgba(45,212,191,0.7)" strokeWidth="0.8" />
+                  <circle className="orbit-dot orbit-dot--1" cx="30" cy="18" r="2" fill="#2dd4bf" />
+                  <circle className="orbit-dot orbit-dot--2" cx="18" cy="10" r="1.5" fill="#2dd4bf" />
+                  <circle className="orbit-dot orbit-dot--3" cx="10" cy="22" r="1.2" fill="#2dd4bf" />
+                </svg>
               </div>
               <span className="nav-logo-text hidden sm:block">
                 {siteConfig.storeName}

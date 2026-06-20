@@ -5,7 +5,11 @@
       "mcp__stitch__list_screens",
       "Bash(npx next *)",
       "Bash(curl *)",
-      "Bash(pkill -f \"next dev\")"
+      "Bash(pkill -f \"next dev\")",
+      "Bash(npm run *)",
+      "Bash(node *)",
+      "Bash(npm install *)",
+      "Bash(npm uninstall *)"
     ]
   }
 }

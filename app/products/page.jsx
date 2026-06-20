@@ -3,7 +3,7 @@ import { useState, useMemo, useCallback, useEffect, useRef, Suspense } from "rea
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
-import { subscribeToProducts, PRODUCT_CATEGORIES } from "@/firebase/products";
+import { subscribeToProducts, PRODUCT_CATEGORIES } from "@/supabase/products";
 import { useLang } from "@/context/LanguageContext";
 import ProductCard from "@/components/ProductCard/ProductCard";
 

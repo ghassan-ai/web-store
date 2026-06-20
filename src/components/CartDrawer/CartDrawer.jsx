@@ -56,7 +56,7 @@ export default function CartDrawer({ open, onClose }) {
               {/* Items */}
               <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3 bg-primary rounded-xl p-3 border border-card-border">
+                  <div key={item.cartKey || item.id} className="flex items-center gap-3 bg-primary rounded-xl p-3 border border-card-border">
                     <img
                       loading="lazy"
                       src={item.imageUrl || item.images?.[0] || item.image || ""}
@@ -66,24 +66,33 @@ export default function CartDrawer({ open, onClose }) {
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate font-tajawal">{item.name}</p>
+                      {item.selections && (
+                        <div className="flex flex-wrap gap-x-2">
+                          {Object.entries(item.selections).map(([key, val]) => (
+                            <span key={key} className="text-[10px] text-accent">
+                              {key === 'color' ? (isAr ? 'اللون' : 'Color') : key}: {val}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       <p className="text-sm font-bold text-accent font-mono" dir="ltr">${item.price}</p>
                     </div>
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.cartKey || item.id, item.quantity - 1)}
                         className="w-7 h-7 rounded bg-card flex items-center justify-center hover:bg-accent/10 transition-colors text-text-secondary border border-card-border"
                       >
                         <Minus size={12} />
                       </button>
                       <span className="w-7 text-center text-sm font-bold text-white font-mono">{item.quantity}</span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.cartKey || item.id, item.quantity + 1)}
                         className="w-7 h-7 rounded bg-card flex items-center justify-center hover:bg-accent/10 transition-colors text-text-secondary border border-card-border"
                       >
                         <Plus size={12} />
                       </button>
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item.cartKey || item.id)}
                         className="w-7 h-7 rounded flex items-center justify-center text-accent-rose hover:bg-accent-rose/10 ms-1 transition-colors"
                       >
                         <Trash2 size={14} />

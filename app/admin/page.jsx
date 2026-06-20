@@ -1,51 +1,12 @@
 'use client';
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { subscribeToAllProducts, addProduct, updateProduct, deleteProduct, toggleActive, PRODUCT_CATEGORIES } from "@/firebase/products";
-import { subscribeToAllOrders, updateOrderStatus } from "@/firebase/orders";
-import { subscribeToBanners, saveBanner } from "@/firebase/banners";
-import { signOut, onAuthChange } from "@/firebase/auth";
-import { Edit2, Trash2, Check, X, Eye, EyeOff, Plus, List, LogOut, Search, ClipboardList, Upload, Loader2, Image } from 'lucide-react';
+import { subscribeToAllProducts, addProduct, updateProduct, deleteProduct, toggleActive, PRODUCT_CATEGORIES } from "@/supabase/products";
+import { subscribeToAllOrders, updateOrderStatus } from "@/supabase/orders";
+import { signOut, onAuthChange } from "@/supabase/auth";
+import { uploadProductImage } from "@/supabase/storage";
+import { Edit2, Trash2, Check, X, Eye, EyeOff, Plus, List, LogOut, Search, ClipboardList, Upload, Loader2 } from 'lucide-react';
 import { handleImgError } from "@/utils/imageHelpers";
-
-function compressImageToBase64(file, maxSizeKB = 300) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target.result;
-      if (file.size <= maxSizeKB * 1024) {
-        resolve(base64);
-        return;
-      }
-      const img = new window.Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        let quality = 0.8;
-        let result = canvas.toDataURL('image/jpeg', quality);
-        while (result.length > maxSizeKB * 1024 * 1.37 && quality > 0.1) {
-          quality -= 0.1;
-          result = canvas.toDataURL('image/jpeg', quality);
-        }
-        if (result.length > maxSizeKB * 1024 * 1.37) {
-          const scale = Math.sqrt((maxSizeKB * 1024 * 1.37) / result.length);
-          canvas.width = Math.floor(img.width * scale);
-          canvas.height = Math.floor(img.height * scale);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          result = canvas.toDataURL('image/jpeg', 0.7);
-        }
-        resolve(result);
-      };
-      img.onerror = () => reject(new Error('فشل تحميل الصورة'));
-      img.src = base64;
-    };
-    reader.onerror = () => reject(new Error('فشل قراءة الملف'));
-    reader.readAsDataURL(file);
-  });
-}
 
 function ImageUploader({ imageUrl, onUploaded, error }) {
   const [processing, setProcessing] = useState(false);
@@ -70,11 +31,11 @@ function ImageUploader({ imageUrl, onUploaded, error }) {
     setProcessing(true);
 
     try {
-      const base64 = await compressImageToBase64(file);
-      setPreview(base64);
-      onUploaded(base64);
+      const url = await uploadProductImage(file);
+      setPreview(url);
+      onUploaded(url);
     } catch (err) {
-      setUploadError('فشل معالجة الصورة: ' + (err.message || 'خطأ غير معروف'));
+      setUploadError('فشل رفع الصورة: ' + (err.message || 'خطأ غير معروف'));
       setPreview(imageUrl || '');
     } finally {
       setProcessing(false);
@@ -86,7 +47,7 @@ function ImageUploader({ imageUrl, onUploaded, error }) {
       <label className="block text-gray-700 mb-2 font-bold">صورة المنتج</label>
       <div className="flex items-center gap-2 mb-3">
         <Upload size={16} className="text-blue-600" />
-        <span className="text-sm text-gray-600">اختر صورة من جهازك (سيتم ضغطها تلقائياً إذا تجاوزت 300KB)</span>
+        <span className="text-sm text-gray-600">اختر صورة من جهازك (سيتم رفعها إلى التخزين السحابي)</span>
       </div>
 
       <input
@@ -112,6 +73,113 @@ function ImageUploader({ imageUrl, onUploaded, error }) {
         </div>
       )}
     </div>
+  );
+}
+
+function OptionsManager({ options, onChange }) {
+  const addGroup = () => {
+    onChange([...options, { id: Date.now().toString(), title: '', values: [] }]);
+  };
+
+  const removeGroup = (idx) => {
+    onChange(options.filter((_, i) => i !== idx));
+  };
+
+  const updateTitle = (idx, title) => {
+    const updated = [...options];
+    updated[idx] = { ...updated[idx], title };
+    onChange(updated);
+  };
+
+  const addValue = (idx, value) => {
+    if (!value.trim()) return;
+    const updated = [...options];
+    updated[idx] = { ...updated[idx], values: [...updated[idx].values, value.trim()] };
+    onChange(updated);
+  };
+
+  const removeValue = (groupIdx, valIdx) => {
+    const updated = [...options];
+    updated[groupIdx] = { ...updated[groupIdx], values: updated[groupIdx].values.filter((_, i) => i !== valIdx) };
+    onChange(updated);
+  };
+
+  return (
+    <div className="space-y-4">
+      {options.map((group, idx) => (
+        <div key={group.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+          <div className="flex items-center gap-3 mb-3">
+            <input
+              type="text"
+              value={group.title}
+              onChange={e => updateTitle(idx, e.target.value)}
+              placeholder="عنوان الخيار (مثال: السعة التخزينية، الموديل)"
+              className="flex-1 border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="button"
+              onClick={() => removeGroup(idx)}
+              className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition"
+              title="حذف المجموعة"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            {group.values.map((val, vIdx) => (
+              <span key={vIdx} className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+                {val}
+                <button
+                  type="button"
+                  onClick={() => removeValue(idx, vIdx)}
+                  className="text-blue-600 hover:text-red-600 transition"
+                >
+                  <X size={12} />
+                </button>
+              </span>
+            ))}
+          </div>
+          <OptionValueInput onAdd={(val) => addValue(idx, val)} />
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={addGroup}
+        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-bold text-sm transition"
+      >
+        <Plus size={16} /> إضافة مجموعة خيارات
+      </button>
+    </div>
+  );
+}
+
+function OptionValueInput({ onAdd }) {
+  const [value, setValue] = React.useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (value.trim()) {
+      onAdd(value);
+      setValue('');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+      <input
+        type="text"
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        placeholder="أضف قيمة جديدة..."
+        className="flex-1 border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        type="submit"
+        className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg font-medium transition"
+      >
+        + إضافة
+      </button>
+    </form>
   );
 }
 
@@ -190,6 +258,7 @@ export default function AdminPage() {
     hasColors: false,
     colors: [],
     specs: '',
+    customOptions: [],
   };
   const [form, setForm] = useState(initialForm);
   const [formErrors, setFormErrors] = useState({});
@@ -258,6 +327,7 @@ export default function AdminPage() {
         isActive: form.isActive,
         colors: form.hasColors ? form.colors : [],
         specs: form.specs.trim(),
+        customOptions: form.customOptions.filter(g => g.title.trim() && g.values.length > 0),
       });
       setSuccessMsg('تمت إضافة المنتج بنجاح!');
       setForm(initialForm);
@@ -279,6 +349,7 @@ export default function AdminPage() {
       hasColors: (product.colors || []).length > 0,
       colors: product.colors || [],
       specs: product.specs || '',
+      customOptions: product.customOptions || [],
     });
   };
 
@@ -300,6 +371,7 @@ export default function AdminPage() {
         isActive: editForm.isActive,
         colors: editForm.hasColors ? editForm.colors : [],
         specs: editForm.specs.trim(),
+        customOptions: (editForm.customOptions || []).filter(g => g.title.trim() && g.values.length > 0),
       });
       setEditingId(null);
       setSuccessMsg('تم تعديل المنتج بنجاح!');
@@ -365,14 +437,6 @@ export default function AdminPage() {
             }`}
           >
             <ClipboardList size={20} /> الطلبات
-          </button>
-          <button
-            onClick={() => setTab('banners')}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition ${
-              tab === 'banners' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-100 shadow-sm'
-            }`}
-          >
-            <Image size={20} /> البنرات
           </button>
         </div>
           <button
@@ -573,6 +637,13 @@ export default function AdminPage() {
                                       />
                                     )}
                                   </div>
+                                  <div>
+                                    <label className="block text-gray-700 mb-1 text-sm font-bold">خيارات المنتج</label>
+                                    <OptionsManager
+                                      options={editForm.customOptions || []}
+                                      onChange={(customOptions) => setEditForm({...editForm, customOptions})}
+                                    />
+                                  </div>
                                   <div className="flex items-center gap-3">
                                     <input
                                       type="checkbox"
@@ -700,6 +771,15 @@ export default function AdminPage() {
                 )}
               </div>
 
+              <div>
+                <label className="block text-gray-700 mb-2 font-bold">خيارات المنتج (اختياري)</label>
+                <p className="text-sm text-gray-500 mb-3">أضف خيارات مخصصة مثل: السعة التخزينية، الموديل، المقاس...</p>
+                <OptionsManager
+                  options={form.customOptions}
+                  onChange={(customOptions) => setForm({...form, customOptions})}
+                />
+              </div>
+
               <div className="flex items-center gap-3 mt-4 bg-gray-50 p-4 rounded-lg border">
                 <input
                   type="checkbox"
@@ -725,7 +805,6 @@ export default function AdminPage() {
 
         {tab === 'orders' && <OrdersTab />}
 
-        {tab === 'banners' && <BannersTab products={products} />}
       </div>
     </div>
   );
@@ -867,163 +946,3 @@ function OrdersTab() {
   );
 }
 
-function BannersTab({ products }) {
-  const [slots, setSlots] = useState(
-    Array.from({ length: 5 }, (_, i) => ({
-      slotNumber: i + 1,
-      imageBase64: '',
-      productId: '',
-      productName: '',
-    }))
-  );
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(null);
-  const [successMsg, setSuccessMsg] = useState('');
-  const [processing, setProcessing] = useState(null);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToBanners((data) => {
-      setSlots(prev => prev.map(slot => {
-        const fromDb = data.find(b => b.slotNumber === slot.slotNumber);
-        return fromDb ? { ...slot, ...fromDb } : slot;
-      }));
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const handleImageUpload = async (slotIndex, file) => {
-    if (!file || !file.type.startsWith('image/')) return;
-    setProcessing(slotIndex);
-    try {
-      const base64 = await compressImageToBase64(file, 300);
-      setSlots(prev => prev.map((s, i) =>
-        i === slotIndex ? { ...s, imageBase64: base64 } : s
-      ));
-    } catch (err) {
-      alert('فشل معالجة الصورة: ' + err.message);
-    } finally {
-      setProcessing(null);
-    }
-  };
-
-  const handleProductChange = (slotIndex, productId) => {
-    const product = products.find(p => p.id === productId);
-    setSlots(prev => prev.map((s, i) =>
-      i === slotIndex ? { ...s, productId, productName: product?.name || '' } : s
-    ));
-  };
-
-  const handleSave = async (slotIndex) => {
-    const slot = slots[slotIndex];
-    if (!slot.imageBase64) {
-      alert('يرجى اختيار صورة للبنر');
-      return;
-    }
-    if (!slot.productId) {
-      alert('يرجى اختيار المنتج المرتبط');
-      return;
-    }
-    setSaving(slot.slotNumber);
-    try {
-      await saveBanner(slot.slotNumber, {
-        imageBase64: slot.imageBase64,
-        productId: slot.productId,
-        productName: slot.productName,
-      });
-      setSuccessMsg(`تم حفظ سلايد ${slot.slotNumber} بنجاح`);
-      setTimeout(() => setSuccessMsg(''), 3000);
-    } catch (err) {
-      alert('فشل حفظ البنر: ' + err.message);
-    } finally {
-      setSaving(null);
-    }
-  };
-
-  if (loading) {
-    return <div className="p-12 text-center text-gray-500 font-medium">جاري تحميل البنرات...</div>;
-  }
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-800">إدارة البنرات (سلايدشو الصفحة الرئيسية)</h2>
-      </div>
-
-      {successMsg && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 font-medium">{successMsg}</div>}
-
-      <div className="space-y-4">
-        {slots.map((slot, index) => (
-          <div key={slot.slotNumber} className="bg-white rounded-xl shadow-sm border p-5">
-            <h3 className="text-lg font-bold text-gray-700 mb-4">سلايد {slot.slotNumber}</h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4 items-start">
-              <div>
-                {slot.imageBase64 ? (
-                  <img
-                    src={slot.imageBase64}
-                    alt={`سلايد ${slot.slotNumber}`}
-                    className="w-full h-28 object-cover rounded-lg border shadow-sm"
-                  />
-                ) : (
-                  <div className="w-full h-28 bg-gray-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-sm">
-                    لا توجد صورة
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-gray-600 text-sm font-bold mb-1">صورة البنر</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(index, e.target.files?.[0])}
-                    className="w-full border border-gray-300 rounded-lg p-2 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 file:font-medium file:cursor-pointer"
-                  />
-                  {processing === index && (
-                    <div className="flex items-center gap-2 mt-1">
-                      <Loader2 size={14} className="text-blue-600 animate-spin" />
-                      <span className="text-xs text-blue-600">جاري المعالجة...</span>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-gray-600 text-sm font-bold mb-1">المنتج المرتبط</label>
-                  <select
-                    value={slot.productId}
-                    onChange={(e) => handleProductChange(index, e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                  >
-                    <option value="">— اختر منتج —</option>
-                    {products.map(p => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </select>
-                  {slot.productName && (
-                    <p className="text-xs text-gray-500 mt-1">المنتج: {slot.productName}</p>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => handleSave(index)}
-                  disabled={saving === slot.slotNumber}
-                  className={`px-5 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition flex items-center gap-2 ${
-                    saving === slot.slotNumber ? 'opacity-50 cursor-wait' : ''
-                  }`}
-                >
-                  {saving === slot.slotNumber ? (
-                    <><Loader2 size={14} className="animate-spin" /> جاري الحفظ...</>
-                  ) : (
-                    <><Check size={14} /> حفظ السلايد</>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
