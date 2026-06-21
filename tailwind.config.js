@@ -20,6 +20,11 @@ module.exports = {
           DEFAULT: '#16234A',
           border: '#2A3A6B',
         },
+        surface: {
+          DEFAULT: '#EEF3F9',
+          card: '#FFFFFF',
+          border: '#E2E8F0',
+        },
         accent: {
           DEFAULT: '#3D8BFF',
           hover: '#5AA0FF',
@@ -29,6 +34,11 @@ module.exports = {
         text: {
           primary: '#FFFFFF',
           secondary: '#A8B4D6',
+        },
+        'text-dark': {
+          heading: '#0F1A3E',
+          body: '#3D4F6F',
+          muted: '#5C6B8A',
         },
       },
       borderRadius: {

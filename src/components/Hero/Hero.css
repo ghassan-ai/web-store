@@ -25,6 +25,18 @@
   animation: heroFadeIn 0.9s ease-out forwards;
 }
 
+.hero-new::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent 0%, #EEF3F9 100%);
+  pointer-events: none;
+  z-index: 3;
+}
+
 /* Technical grid overlay */
 .hero-grid-bg {
   position: absolute;
@@ -58,6 +70,15 @@
   color: #ffffff;
   line-height: 1.25;
   max-width: 600px;
+}
+
+.hero-line {
+  display: block;
+}
+
+.hero-line-2 {
+  color: #2dd4bf;
+  text-shadow: 0 0 10px rgba(45, 212, 191, 0.3);
 }
 
 /* ─── Subtitle ─── */

@@ -2,6 +2,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   ShoppingCart, Search,
   Menu, X, Home, ShoppingBag, HelpCircle, MapPin, Phone,
@@ -9,6 +12,8 @@ import {
 import { useLang } from "@/context/LanguageContext";
 import siteConfig from "@/config/siteConfig";
 import "./Navbar.css";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const NAV_ICONS = {
   "/": Home,
@@ -23,18 +28,29 @@ function Navbar({ cartCount = 0, onCartClick }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [scrolled, setScrolled] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
   const searchInputRef = useRef(null);
   const lastScrollY = useRef(0);
+  const navRef = useRef(null);
+  const desktopLinksRef = useRef(null);
+  const underlineRef = useRef(null);
+  const activeBottomRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
 
+  // Scroll-triggered shadow via GSAP ScrollTrigger (Task 1a)
+  useGSAP(() => {
+    ScrollTrigger.create({
+      start: "top -20",
+      end: 99999,
+      toggleClass: { className: "navbar--scrolled", targets: navRef.current },
+    });
+  }, { scope: navRef });
+
+  // Hide/show on scroll direction (keep existing behavior)
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
-      setScrolled(currentY > 20);
-
       if (currentY > lastScrollY.current && currentY > 80) {
         setNavHidden(true);
       } else {
@@ -45,6 +61,60 @@ function Navbar({ cartCount = 0, onCartClick }) {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Desktop underline position (Task 1b)
+  const updateUnderline = useCallback(() => {
+    if (!desktopLinksRef.current || !underlineRef.current) return;
+    const container = desktopLinksRef.current;
+    const activeLink = container.querySelector(`a[href="${pathname}"]`);
+    if (!activeLink) {
+      gsap.to(underlineRef.current, { opacity: 0, duration: 0.2 });
+      return;
+    }
+    const containerRect = container.getBoundingClientRect();
+    const linkRect = activeLink.getBoundingClientRect();
+    const targetLeft = linkRect.left - containerRect.left;
+    const targetWidth = linkRect.width;
+
+    if (underlineRef.current.dataset.initialized) {
+      gsap.to(underlineRef.current, {
+        left: targetLeft,
+        width: targetWidth,
+        opacity: 1,
+        duration: 0.4,
+        ease: "power2.out",
+      });
+    } else {
+      gsap.set(underlineRef.current, { left: targetLeft, width: targetWidth });
+      gsap.from(underlineRef.current, { scaleX: 0, opacity: 0, duration: 0.3 });
+      underlineRef.current.dataset.initialized = "true";
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    updateUnderline();
+    const handleResize = () => updateUnderline();
+    let timer;
+    const debouncedResize = () => {
+      clearTimeout(timer);
+      timer = setTimeout(handleResize, 150);
+    };
+    window.addEventListener("resize", debouncedResize);
+    return () => {
+      window.removeEventListener("resize", debouncedResize);
+      clearTimeout(timer);
+    };
+  }, [updateUnderline]);
+
+  // Mobile bottom nav: active icon pop (Task 3)
+  useGSAP(() => {
+    if (!activeBottomRef.current) return;
+    gsap.fromTo(
+      activeBottomRef.current,
+      { scale: 1 },
+      { scale: 1.15, duration: 0.25, ease: "back.out(2)", yoyo: true, repeat: 1, repeatDelay: 0 }
+    );
+  }, { dependencies: [pathname] });
 
   useEffect(() => {
     if (mobileOpen) {
@@ -74,7 +144,7 @@ function Navbar({ cartCount = 0, onCartClick }) {
   return (
     <>
       {/* Top Navbar */}
-      <nav className={`navbar ${scrolled ? "navbar--scrolled" : ""} ${navHidden ? "navbar--hidden" : ""}`}>
+      <nav ref={navRef} className={`navbar dark-context ${navHidden ? "navbar--hidden" : ""}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-[64px]">
 
@@ -90,13 +160,13 @@ function Navbar({ cartCount = 0, onCartClick }) {
                   <circle className="orbit-dot orbit-dot--3" cx="10" cy="22" r="1.2" fill="#2dd4bf" />
                 </svg>
               </div>
-              <span className="nav-logo-text hidden sm:block">
+              <span className="nav-logo-text shimmer-text hidden sm:inline-block">
                 {siteConfig.storeName}
               </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-1">
+            <div ref={desktopLinksRef} className="hidden lg:flex items-center gap-1 relative">
               {siteConfig.navLinks.map((link) => (
                 link.path.startsWith("/") && !link.path.includes("#") ? (
                   <Link
@@ -116,6 +186,11 @@ function Navbar({ cartCount = 0, onCartClick }) {
                   </a>
                 )
               ))}
+              {/* Animated underline */}
+              <span
+                ref={underlineRef}
+                className="nav-underline"
+              />
             </div>
 
             {/* Right Actions */}
@@ -191,7 +266,12 @@ function Navbar({ cartCount = 0, onCartClick }) {
           const isActive = pathname === link.path;
           const item = (
             <>
-              <span className="bottom-nav-icon"><Icon size={20} /></span>
+              <span
+                className="bottom-nav-icon"
+                ref={isActive ? activeBottomRef : null}
+              >
+                <Icon size={20} />
+              </span>
               <span>{isAr ? link.label : link.labelEn}</span>
             </>
           );

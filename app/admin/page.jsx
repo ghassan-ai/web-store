@@ -156,30 +156,38 @@ function OptionsManager({ options, onChange }) {
 function OptionValueInput({ onAdd }) {
   const [value, setValue] = React.useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleAdd = () => {
     if (value.trim()) {
       onAdd(value);
       setValue('');
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAdd();
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+    <div className="flex items-center gap-2">
       <input
         type="text"
         value={value}
         onChange={e => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder="أضف قيمة جديدة..."
         className="flex-1 border border-gray-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
       />
       <button
-        type="submit"
+        type="button"
+        onClick={handleAdd}
         className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg font-medium transition"
       >
         + إضافة
       </button>
-    </form>
+    </div>
   );
 }
 
@@ -266,6 +274,7 @@ export default function AdminPage() {
 
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthChange((currentUser) => {
@@ -317,6 +326,7 @@ export default function AdminPage() {
 
     setFormErrors({});
     setError(null);
+    setSaving(true);
     try {
       await addProduct({
         name: form.name.trim(),
@@ -334,6 +344,8 @@ export default function AdminPage() {
       setTimeout(() => setSuccessMsg(''), 3000);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -360,6 +372,7 @@ export default function AdminPage() {
       return;
     }
 
+    setSaving(true);
     try {
       setError(null);
       await updateProduct(editingId, {
@@ -378,6 +391,8 @@ export default function AdminPage() {
       setTimeout(() => setSuccessMsg(''), 3000);
     } catch (err) {
       setError('فشل حفظ التعديلات: ' + (err.message || 'خطأ غير معروف'));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -490,7 +505,8 @@ export default function AdminPage() {
               {loading ? (
                 <div className="p-12 text-center text-gray-500 font-medium">جاري تحميل المنتجات...</div>
               ) : (
-                <div className="overflow-x-auto">
+                <>
+                <div className="overflow-x-auto hidden md:block">
                   <table className="w-full text-right border-collapse">
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
@@ -578,8 +594,8 @@ export default function AdminPage() {
                             <td className="p-4 flex gap-2 justify-center">
                               {isEditing ? (
                                 <>
-                                  <button onClick={handleSaveEdit} className="text-white bg-green-500 hover:bg-green-600 p-2 rounded-lg transition shadow-sm" title="حفظ">
-                                    <Check size={18} />
+                                  <button onClick={handleSaveEdit} disabled={saving} className={`text-white bg-green-500 hover:bg-green-600 p-2 rounded-lg transition shadow-sm ${saving ? 'opacity-60 cursor-not-allowed' : ''}`} title="حفظ">
+                                    {saving ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
                                   </button>
                                   <button onClick={() => setEditingId(null)} className="text-gray-600 bg-gray-200 hover:bg-gray-300 p-2 rounded-lg transition shadow-sm" title="إلغاء">
                                     <X size={18} />
@@ -673,6 +689,198 @@ export default function AdminPage() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4 p-4">
+                  {filteredProducts.map(product => {
+                    const isEditing = editingId === product.id;
+                    const p = isEditing ? editForm : product;
+
+                    return (
+                      <div key={product.id} className={`bg-white rounded-xl border shadow-sm p-4 ${isEditing ? 'border-2 border-accent' : 'border-gray-200'}`}>
+                        {isEditing ? (
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-gray-700 mb-1 text-sm font-bold">الاسم</label>
+                              <input
+                                type="text"
+                                value={p.name}
+                                onChange={e => setEditForm({...editForm, name: e.target.value})}
+                                className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-gray-700 mb-1 text-sm font-bold">السعر</label>
+                                <input
+                                  type="number"
+                                  value={p.price}
+                                  onChange={e => setEditForm({...editForm, price: e.target.value})}
+                                  className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-gray-700 mb-1 text-sm font-bold">المخزون</label>
+                                <input
+                                  type="number"
+                                  value={p.stock}
+                                  onChange={e => setEditForm({...editForm, stock: e.target.value})}
+                                  className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-gray-700 mb-1 text-sm font-bold">الفئة</label>
+                              <select
+                                value={p.category || 'phone'}
+                                onChange={e => setEditForm({...editForm, category: e.target.value})}
+                                className="w-full border border-gray-300 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                              >
+                                {PRODUCT_CATEGORIES.map(cat => (
+                                  <option key={cat.value} value={cat.value}>{cat.labelAr}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <ImageUploader
+                              imageUrl={editForm.imageUrl}
+                              onUploaded={(url) => setEditForm({...editForm, imageUrl: url})}
+                            />
+                            <div>
+                              <label className="block text-gray-700 mb-1 text-sm font-bold">المواصفات</label>
+                              <textarea
+                                value={editForm.specs || ''}
+                                onChange={e => setEditForm({...editForm, specs: e.target.value})}
+                                rows={3}
+                                className="w-full border border-gray-300 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                placeholder="RAM: 8GB, Storage: 256GB, Battery: 5000mAh"
+                              />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-3 mb-2">
+                                <input
+                                  type="checkbox"
+                                  id={`mobile-colors-${product.id}`}
+                                  checked={editForm.hasColors}
+                                  onChange={e => setEditForm({...editForm, hasColors: e.target.checked, colors: e.target.checked ? editForm.colors : []})}
+                                  className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                                />
+                                <label htmlFor={`mobile-colors-${product.id}`} className="text-gray-700 font-bold text-sm cursor-pointer">
+                                  هل يحتوي على ألوان؟
+                                </label>
+                              </div>
+                              {editForm.hasColors && (
+                                <ColorsManager
+                                  colors={editForm.colors || []}
+                                  onChange={(colors) => setEditForm({...editForm, colors})}
+                                />
+                              )}
+                            </div>
+                            <div>
+                              <label className="block text-gray-700 mb-1 text-sm font-bold">خيارات المنتج</label>
+                              <OptionsManager
+                                options={editForm.customOptions || []}
+                                onChange={(customOptions) => setEditForm({...editForm, customOptions})}
+                              />
+                            </div>
+                            <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
+                              <input
+                                type="checkbox"
+                                id={`mobile-active-${product.id}`}
+                                checked={editForm.isActive}
+                                onChange={e => setEditForm({...editForm, isActive: e.target.checked})}
+                                className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                              />
+                              <label htmlFor={`mobile-active-${product.id}`} className="text-gray-800 font-bold text-sm cursor-pointer">
+                                نشط (يظهر في المتجر)
+                              </label>
+                            </div>
+                            <div className="flex gap-3 pt-3 border-t border-gray-200">
+                              <button
+                                onClick={handleSaveEdit}
+                                disabled={saving}
+                                className={`flex-1 min-h-[44px] bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
+                              >
+                                {saving ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
+                                حفظ
+                              </button>
+                              <button
+                                onClick={() => setEditingId(null)}
+                                className="flex-1 min-h-[44px] bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition"
+                              >
+                                <X size={18} />
+                                إلغاء
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex gap-4 items-start">
+                              <img
+                                loading="lazy"
+                                src={p.imageUrl || ''}
+                                alt={p.name}
+                                className="w-20 h-20 object-cover rounded-lg border shadow-sm flex-shrink-0"
+                                onError={handleImgError}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-gray-900 text-base truncate">{p.name}</h3>
+                                <div className="flex items-center gap-3 mt-1.5">
+                                  <span className="font-bold text-gray-800 text-lg">${p.price}</span>
+                                  <span className={`text-sm font-bold ${p.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    المخزون: {p.stock}
+                                  </span>
+                                </div>
+                                <div className="mt-2">
+                                  <span className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${
+                                    product.isActive
+                                      ? 'bg-green-100 text-green-700'
+                                      : 'bg-gray-200 text-gray-500'
+                                  }`}>
+                                    {product.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
+                                    {product.isActive ? 'نشط' : 'مخفي'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-100">
+                              <button
+                                onClick={() => handleToggleActive(product)}
+                                className={`flex-1 min-h-[44px] rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition ${
+                                  product.isActive
+                                    ? 'text-green-700 bg-green-50 hover:bg-green-100'
+                                    : 'text-gray-600 bg-gray-100 hover:bg-gray-200'
+                                }`}
+                              >
+                                {product.isActive ? <EyeOff size={18} /> : <Eye size={18} />}
+                                {product.isActive ? 'إخفاء' : 'إظهار'}
+                              </button>
+                              <button
+                                onClick={() => handleEditClick(product)}
+                                className="flex-1 min-h-[44px] text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition"
+                              >
+                                <Edit2 size={18} />
+                                تعديل
+                              </button>
+                              <button
+                                onClick={() => handleDelete(product.id)}
+                                className="flex-1 min-h-[44px] text-red-600 bg-red-50 hover:bg-red-100 rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition"
+                              >
+                                <Trash2 size={18} />
+                                حذف
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {filteredProducts.length === 0 && !loading && (
+                    <div className="text-center text-gray-500 font-medium py-8">
+                      {products.length === 0 ? 'لا توجد منتجات حالياً. أضف منتجاً جديداً للبدء!' : 'لا توجد نتائج مطابقة للبحث'}
+                    </div>
+                  )}
+                </div>
+                </>
               )}
             </div>
           </div>
@@ -793,10 +1001,11 @@ export default function AdminPage() {
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition-colors shadow-md mt-6 flex justify-center items-center gap-2"
+                disabled={saving}
+                className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition-colors shadow-md mt-6 flex justify-center items-center gap-2 ${saving ? 'opacity-60 cursor-not-allowed' : ''}`}
               >
-                <Plus size={20} />
-                حفظ المنتج في قاعدة البيانات
+                {saving ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
+                {saving ? 'جاري الحفظ...' : 'حفظ المنتج في قاعدة البيانات'}
               </button>
 
             </form>
@@ -879,7 +1088,7 @@ function OrdersTab() {
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-right border-collapse">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
@@ -939,6 +1148,73 @@ function OrdersTab() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-4 p-4">
+            {orders.map((order) => {
+              const statusColors = {
+                pending: 'bg-yellow-100 text-yellow-700',
+                processing: 'bg-blue-100 text-blue-700',
+                shipped: 'bg-purple-100 text-purple-700',
+                delivered: 'bg-green-100 text-green-700',
+              };
+              const currentStatus = order.status || 'pending';
+              const statusLabel = ORDER_STATUSES.find(s => s.value === currentStatus)?.label || currentStatus;
+
+              return (
+                <div key={order.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="font-mono text-sm font-bold text-blue-600">
+                      {order.orderNumber || order.id.slice(0, 8)}
+                    </span>
+                    <span className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full flex-shrink-0 ${statusColors[currentStatus] || 'bg-gray-100 text-gray-600'}`}>
+                      {statusLabel}
+                    </span>
+                  </div>
+
+                  <div className="mt-3">
+                    <div className="font-bold text-gray-900">{order.customerName || "—"}</div>
+                    <div className="text-sm text-gray-500 mt-0.5">
+                      {order.customerPhone || ""}
+                      {order.customerPhone && order.city ? ' · ' : ''}
+                      {order.city || ""}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 space-y-1">
+                    {(order.items || []).slice(0, 3).map((item, i) => (
+                      <div key={i} className="text-sm text-gray-700">
+                        {item.name} <span className="text-gray-400">×{item.quantity}</span>
+                      </div>
+                    ))}
+                    {(order.items || []).length > 3 && (
+                      <div className="text-xs text-gray-400">+{order.items.length - 3} منتجات أخرى</div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="font-bold text-gray-800 text-lg">${order.total || 0}</span>
+                    <span className="text-xs text-gray-500">{formatDate(order.createdAt)}</span>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-gray-100">
+                    <select
+                      value={currentStatus}
+                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                      disabled={updatingId === order.id}
+                      className={`w-full min-h-[44px] border border-gray-300 rounded-lg px-3 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
+                        updatingId === order.id ? "opacity-50 cursor-wait" : "cursor-pointer"
+                      }`}
+                    >
+                      {ORDER_STATUSES.map((s) => (
+                        <option key={s.value} value={s.value}>{s.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

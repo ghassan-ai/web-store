@@ -14,7 +14,7 @@ export default function QuizPage() {
   }, []);
 
   return (
-    <div className="min-h-[60vh] bg-primary">
+    <div className="min-h-[60vh]">
       <ProductQuiz products={products} />
     </div>
   );

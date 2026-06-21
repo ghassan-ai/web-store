@@ -30,7 +30,7 @@ function OrderSuccessContent() {
   };
 
   return (
-    <div dir="rtl" className="min-h-[70vh] flex items-center justify-center px-4 py-12 bg-primary">
+    <div dir="rtl" className="min-h-[70vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md text-center">
         {/* Checkmark Animation */}
         <div className="relative w-24 h-24 mx-auto mb-6">
@@ -41,26 +41,26 @@ function OrderSuccessContent() {
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 font-tajawal">
+        <h1 className="text-2xl sm:text-3xl font-bold text-text-dark-heading mb-2 font-tajawal">
           {isAr ? "شكراً لطلبك" : "Thank you for your order"}
         </h1>
-        <p className="text-text-secondary text-sm mb-8 font-tajawal">
+        <p className="text-text-dark-muted text-sm mb-8 font-tajawal">
           {isAr ? "لا تختفي... ننتظر زيارتك القادمة!" : "Don't disappear... we look forward to your next visit!"}
         </p>
 
         {/* Order Number Card */}
-        <div className="bg-card rounded-2xl border border-card-border p-6 mb-8">
-          <p className="text-xs text-text-secondary mb-2 font-medium font-tajawal">
+        <div className="bg-surface-card rounded-2xl border border-surface-border shadow-sm p-6 mb-8">
+          <p className="text-xs text-text-dark-muted mb-2 font-medium font-tajawal">
             {isAr ? "رقم الطلب" : "Order Number"}
           </p>
           <div className="flex items-center justify-center gap-3">
-            <span className="text-xl font-bold text-white tracking-wider font-mono" dir="ltr">
+            <span className="text-xl font-bold text-text-dark-heading tracking-wider font-mono" dir="ltr">
               {orderId}
             </span>
             <button
               onClick={handleCopy}
               className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
-                copied ? "bg-accent-emerald/20 text-accent-emerald" : "bg-primary text-text-secondary hover:bg-accent/10"
+                copied ? "bg-accent-emerald/20 text-accent-emerald" : "bg-slate-100 text-text-dark-muted hover:bg-accent/10"
               }`}
               title={isAr ? "نسخ" : "Copy"}
             >
@@ -83,7 +83,7 @@ function OrderSuccessContent() {
           </button>
           <button
             onClick={() => router.push("/products")}
-            className="w-full py-3.5 bg-card text-white font-bold rounded-xl hover:bg-card/80 transition-colors flex items-center justify-center gap-2 border border-card-border font-tajawal"
+            className="w-full py-3.5 bg-surface-card text-text-dark-heading font-bold rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 border border-surface-border font-tajawal"
           >
             <ShoppingBag size={18} />
             {isAr ? "تابع التسوق" : "Continue Shopping"}

@@ -53,7 +53,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="bg-primary">
+    <div>
       <Hero products={products} />
       <CategoryGrid />
       <NewArrivals products={products} loading={loading} />

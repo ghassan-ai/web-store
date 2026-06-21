@@ -203,16 +203,16 @@ export default function ProductQuiz({ products = [] }) {
 
   return (
     <>
-      <section className="py-14 sm:py-20 bg-primary">
+      <section className="py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid md:grid-cols-2 gap-6">
             {/* Quiz Card */}
-            <div className="bg-card rounded-2xl p-8 sm:p-10 border border-card-border text-center hover:border-accent/40 transition-all duration-300 hover:-translate-y-0.5">
+            <div className="bg-surface-card rounded-2xl p-8 sm:p-10 border border-surface-border shadow-sm text-center hover:border-accent/40 transition-all duration-300 hover:-translate-y-0.5">
               <span className="text-4xl block mb-5">🤔</span>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 font-tajawal">
+              <h3 className="text-xl sm:text-2xl font-bold text-text-dark-heading mb-3 font-tajawal">
                 {isAr ? "مش عارف شو تختار؟" : "Not sure what to pick?"}
               </h3>
-              <p className="text-text-secondary text-sm sm:text-base mb-7 max-w-sm mx-auto font-tajawal">
+              <p className="text-text-dark-muted text-sm sm:text-base mb-7 max-w-sm mx-auto font-tajawal">
                 {isAr ? "أجب على بضعة أسئلة ذكية ونحن نختار لك الأنسب" : "Answer a few smart questions and we'll find the best match"}
               </p>
               <button
@@ -225,12 +225,12 @@ export default function ProductQuiz({ products = [] }) {
             </div>
 
             {/* WhatsApp Card */}
-            <div className="bg-card rounded-2xl p-8 sm:p-10 border border-card-border text-center hover:border-accent-emerald/40 transition-all duration-300 hover:-translate-y-0.5">
+            <div className="bg-surface-card rounded-2xl p-8 sm:p-10 border border-surface-border shadow-sm text-center hover:border-accent-emerald/40 transition-all duration-300 hover:-translate-y-0.5">
               <span className="text-4xl block mb-5">💬</span>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 font-tajawal">
+              <h3 className="text-xl sm:text-2xl font-bold text-text-dark-heading mb-3 font-tajawal">
                 {isAr ? "اطلب عبر واتساب" : "Order via WhatsApp"}
               </h3>
-              <p className="text-text-secondary text-sm sm:text-base mb-7 max-w-sm mx-auto font-tajawal">
+              <p className="text-text-dark-muted text-sm sm:text-base mb-7 max-w-sm mx-auto font-tajawal">
                 {isAr ? "تواصل معنا مباشرة على واتساب واطلب أي منتج بكل سهولة" : "Contact us directly on WhatsApp to order any product"}
               </p>
               <a

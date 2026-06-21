@@ -14,7 +14,7 @@ input[type="search"]::-webkit-search-decoration {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(45, 212, 191, 0.1);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
 }
 
 .navbar--scrolled {
@@ -48,6 +48,16 @@ input[type="search"]::-webkit-search-decoration {
 
 .nav-link:active {
   transform: scale(0.97);
+}
+
+/* Animated underline (GSAP-driven position) */
+.nav-underline {
+  position: absolute;
+  bottom: -4px;
+  height: 2px;
+  background: var(--blue-accent, #3D8BFF);
+  border-radius: 1px;
+  pointer-events: none;
 }
 
 /* Action buttons (desktop) */
@@ -188,7 +198,7 @@ input[type="search"]::-webkit-search-decoration {
   font-size: 0.625rem;
   font-weight: 500;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: color 0.25s ease, fill 0.25s ease;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -201,6 +211,10 @@ input[type="search"]::-webkit-search-decoration {
 
 .bottom-nav-item--active {
   color: #2dd4bf;
+}
+
+.bottom-nav-item--active .bottom-nav-icon svg {
+  transition: fill 0.25s ease;
 }
 
 .bottom-nav-item:hover {
@@ -247,7 +261,6 @@ input[type="search"]::-webkit-search-decoration {
 .nav-logo-text {
   font-size: 1rem;
   font-weight: 700;
-  color: #e2e8f0;
   font-family: 'Tajawal', sans-serif;
 }
 

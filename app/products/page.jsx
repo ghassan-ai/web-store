@@ -131,22 +131,22 @@ function ProductsPageContent() {
   }, [selectedCategory, isAr]);
 
   return (
-    <div className="bg-primary min-h-screen" dir="rtl">
+    <div className="min-h-screen" dir="rtl">
       {/* Page Header */}
-      <div className="bg-primary border-b border-card-border">
+      <div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           {/* Breadcrumb */}
           {selectedCategory && (
-            <nav className="text-sm text-text-secondary mb-3 font-tajawal">
+            <nav className="text-sm text-text-dark-muted mb-3 font-tajawal">
               <Link href="/" className="hover:text-accent transition-colors">{isAr ? "الرئيسية" : "Home"}</Link>
               <span className="mx-2">&gt;</span>
-              <span className="text-white">{categoryLabel}</span>
+              <span className="text-text-dark-heading">{categoryLabel}</span>
             </nav>
           )}
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight font-tajawal">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-text-dark-heading tracking-tight font-tajawal">
             {isAr ? "المتجر" : "Shop"}
           </h1>
-          <p className="text-text-secondary text-sm sm:text-base mt-2 font-tajawal">
+          <p className="text-text-dark-muted text-sm sm:text-base mt-2 font-tajawal">
             {isAr ? "تصفح مجموعتنا المميزة واختر ما يناسبك" : "Browse our collection and find what suits you"}
           </p>
         </div>
@@ -160,19 +160,19 @@ function ProductsPageContent() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="appearance-none bg-card border border-card-border rounded-lg h-10 px-4 pe-9 text-sm font-medium text-text-secondary focus:outline-none focus:border-accent cursor-pointer"
+              className="appearance-none bg-surface-card border border-surface-border rounded-lg h-10 px-4 pe-9 text-sm font-medium text-text-dark-muted focus:outline-none focus:border-accent cursor-pointer"
             >
               {SORT_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
-            <ChevronDown size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
+            <ChevronDown size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dark-muted pointer-events-none" />
           </div>
 
           {/* Filter Button */}
           <button
             ref={filterBtnRef}
-            className={`relative flex items-center gap-2 px-4 h-10 bg-card border border-card-border rounded-lg text-sm font-medium text-text-secondary transition-colors ${filtersOpen ? "border-accent text-accent" : ""}`}
+            className={`relative flex items-center gap-2 px-4 h-10 bg-surface-card border border-surface-border rounded-lg text-sm font-medium text-text-dark-muted transition-colors ${filtersOpen ? "border-accent text-accent" : ""}`}
             onClick={() => setFiltersOpen(prev => !prev)}
           >
             <SlidersHorizontal size={16} />
@@ -186,13 +186,13 @@ function ProductsPageContent() {
 
           {/* Search */}
           <div className="relative flex-1 min-w-[200px]">
-            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary" />
+            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-dark-muted" />
             <input
               type="search"
               placeholder={isAr ? "ابحث عن منتج..." : "Search products..."}
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full bg-card border border-card-border rounded-lg h-10 pr-9 pl-4 text-sm text-white placeholder-text-secondary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
+              className="w-full bg-surface-card border border-surface-border rounded-lg h-10 pr-9 pl-4 text-sm text-text-dark-heading placeholder-text-dark-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/20"
             />
           </div>
         </div>
@@ -201,7 +201,7 @@ function ProductsPageContent() {
         {filtersOpen && (
           <div
             ref={filterPanelRef}
-            className="bg-card rounded-2xl shadow-lg border border-card-border p-5 sm:p-6 mb-5"
+            className="bg-surface-card rounded-2xl shadow-sm border border-surface-border p-5 sm:p-6 mb-5"
           >
             {/* Category Pills */}
             <div className="mb-5">
@@ -211,7 +211,7 @@ function ProductsPageContent() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     !selectedCategory
                       ? "bg-accent text-white"
-                      : "bg-primary text-text-secondary hover:bg-primary/80"
+                      : "bg-slate-100 text-text-dark-muted hover:bg-slate-200"
                   }`}
                 >
                   الكل
@@ -223,7 +223,7 @@ function ProductsPageContent() {
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                       selectedCategory === cat.value
                         ? "bg-accent text-white"
-                        : "bg-primary text-text-secondary hover:bg-primary/80"
+                        : "bg-slate-100 text-text-dark-muted hover:bg-slate-200"
                     }`}
                   >
                     {isAr ? cat.labelAr : cat.label}
@@ -241,7 +241,7 @@ function ProductsPageContent() {
                   value={priceMin}
                   onChange={(e) => setPriceMin(e.target.value)}
                   min={0}
-                  className="w-full bg-primary border border-card-border rounded-lg py-2.5 px-4 text-sm text-text-secondary placeholder-text-secondary/50 focus:outline-none focus:border-accent"
+                  className="w-full bg-surface-card border border-surface-border rounded-lg py-2.5 px-4 text-sm text-text-dark-body placeholder-text-dark-muted/50 focus:outline-none focus:border-accent"
                 />
               </div>
               <div className="flex-1">
@@ -251,7 +251,7 @@ function ProductsPageContent() {
                   value={priceMax}
                   onChange={(e) => setPriceMax(e.target.value)}
                   min={0}
-                  className="w-full bg-primary border border-card-border rounded-lg py-2.5 px-4 text-sm text-text-secondary placeholder-text-secondary/50 focus:outline-none focus:border-accent"
+                  className="w-full bg-surface-card border border-surface-border rounded-lg py-2.5 px-4 text-sm text-text-dark-body placeholder-text-dark-muted/50 focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
@@ -260,7 +260,7 @@ function ProductsPageContent() {
 
         {/* Results Count */}
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-text-secondary">
+          <p className="text-sm text-text-dark-muted">
             {isAr
               ? `${filteredAndSorted.length} منتج`
               : `${filteredAndSorted.length} product${filteredAndSorted.length !== 1 ? "s" : ""}`}
@@ -271,24 +271,24 @@ function ProductsPageContent() {
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-2xl animate-pulse bg-card border border-card-border">
-                <div className="aspect-square bg-gray-100 rounded-t-2xl" />
+              <div key={i} className="rounded-2xl animate-pulse bg-surface-card border border-surface-border">
+                <div className="aspect-square bg-slate-100 rounded-t-2xl" />
                 <div className="p-4 sm:p-5 space-y-2.5">
-                  <div className="h-4 bg-primary rounded w-2/3" />
-                  <div className="h-5 bg-primary rounded w-1/4" />
+                  <div className="h-4 bg-slate-100 rounded w-2/3" />
+                  <div className="h-5 bg-slate-100 rounded w-1/4" />
                 </div>
               </div>
             ))}
           </div>
         ) : filteredAndSorted.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-20 h-20 bg-card rounded-2xl flex items-center justify-center mx-auto mb-5 border border-card-border">
-              <Search size={32} className="text-text-secondary" />
+            <div className="w-20 h-20 bg-surface-card rounded-2xl flex items-center justify-center mx-auto mb-5 border border-surface-border">
+              <Search size={32} className="text-text-dark-muted" />
             </div>
-            <h3 className="text-lg font-bold text-white mb-2 font-tajawal">
+            <h3 className="text-lg font-bold text-text-dark-heading mb-2 font-tajawal">
               {isAr ? "لا توجد نتائج لبحثك" : "No results found"}
             </h3>
-            <p className="text-text-secondary text-sm font-tajawal">
+            <p className="text-text-dark-muted text-sm font-tajawal">
               {isAr ? "جرب كلمة مختلفة" : "Try a different search term"}
             </p>
           </div>

@@ -44,7 +44,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="login-bg flex items-center justify-center min-h-[calc(100vh-56px)]">
+    <div className="login-bg dark-context flex items-center justify-center min-h-[calc(100vh-56px)]">
       <form
         onSubmit={handleSubmit}
         className="login-card bg-white rounded-lg shadow max-w-md w-full p-8 flex flex-col gap-5"

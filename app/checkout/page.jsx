@@ -113,14 +113,14 @@ export default function CheckoutPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 bg-primary">
-        <div className="w-20 h-20 rounded-full bg-card flex items-center justify-center mb-4 border border-card-border">
-          <ShoppingBag size={32} className="text-text-secondary" />
+      <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
+        <div className="w-20 h-20 rounded-full bg-surface-card flex items-center justify-center mb-4 border border-surface-border">
+          <ShoppingBag size={32} className="text-text-dark-muted" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2 font-tajawal">
+        <h2 className="text-xl font-bold text-text-dark-heading mb-2 font-tajawal">
           {isAr ? "السلة فارغة" : "Cart is empty"}
         </h2>
-        <p className="text-text-secondary mb-6 text-sm font-tajawal">
+        <p className="text-text-dark-muted mb-6 text-sm font-tajawal">
           {isAr ? "أضف منتجات أولاً قبل إتمام الطلب" : "Add products before checking out"}
         </p>
         <button
@@ -134,9 +134,9 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-primary">
+    <div dir="rtl" className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-8 font-tajawal">
+        <h1 className="text-2xl sm:text-3xl font-bold text-text-dark-heading mb-8 font-tajawal">
           {isAr ? "إتمام الطلب" : "Checkout"}
         </h1>
 
@@ -145,48 +145,48 @@ export default function CheckoutPage() {
           <div className="lg:col-span-2 space-y-6">
 
             {/* Section 1: Personal Info */}
-            <div className="bg-card rounded-2xl p-6 border border-card-border">
-              <h2 className="font-bold text-white mb-5 flex items-center gap-2 font-tajawal">
+            <div className="bg-surface-card rounded-2xl p-6 border border-surface-border shadow-sm">
+              <h2 className="font-bold text-text-dark-heading mb-5 flex items-center gap-2 font-tajawal">
                 <span className="w-7 h-7 rounded-full bg-accent text-white text-xs font-bold flex items-center justify-center">1</span>
                 {isAr ? "المعلومات الشخصية" : "Personal Information"}
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5 font-tajawal">
+                  <label className="block text-sm font-medium text-text-dark-muted mb-1.5 font-tajawal">
                     {isAr ? "الاسم الكامل" : "Full Name"} *
                   </label>
                   <input
                     type="text"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/30 transition bg-primary text-white ${errors.name ? "border-accent-rose" : "border-card-border"}`}
+                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/20 transition ${errors.name ? "border-accent-rose" : "border-surface-border"}`}
                     placeholder={isAr ? "مثال: أحمد محمد" : "e.g. Ahmad Mohammad"}
                   />
                   {errors.name && <p className="text-accent-rose text-xs mt-1">{errors.name}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5 font-tajawal">
+                  <label className="block text-sm font-medium text-text-dark-muted mb-1.5 font-tajawal">
                     {isAr ? "رقم الهاتف" : "Phone Number"} *
                   </label>
                   <input
                     type="tel"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/30 transition bg-primary text-white font-mono ${errors.phone ? "border-accent-rose" : "border-card-border"}`}
+                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/20 transition font-mono ${errors.phone ? "border-accent-rose" : "border-surface-border"}`}
                     placeholder="03 XXX XXX"
                     dir="ltr"
                   />
                   {errors.phone && <p className="text-accent-rose text-xs mt-1">{errors.phone}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5 font-tajawal">
+                  <label className="block text-sm font-medium text-text-dark-muted mb-1.5 font-tajawal">
                     {isAr ? "البريد الإلكتروني" : "Email"} ({isAr ? "اختياري" : "optional"})
                   </label>
                   <input
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/30 transition bg-primary text-white ${errors.email ? "border-accent-rose" : "border-card-border"}`}
+                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/20 transition ${errors.email ? "border-accent-rose" : "border-surface-border"}`}
                     placeholder="email@example.com"
                     dir="ltr"
                   />
@@ -196,21 +196,21 @@ export default function CheckoutPage() {
             </div>
 
             {/* Section 2: Delivery Info */}
-            <div className="bg-card rounded-2xl p-6 border border-card-border">
-              <h2 className="font-bold text-white mb-5 flex items-center gap-2 font-tajawal">
+            <div className="bg-surface-card rounded-2xl p-6 border border-surface-border shadow-sm">
+              <h2 className="font-bold text-text-dark-heading mb-5 flex items-center gap-2 font-tajawal">
                 <span className="w-7 h-7 rounded-full bg-accent text-white text-xs font-bold flex items-center justify-center">2</span>
                 {isAr ? "معلومات التوصيل" : "Delivery Information"}
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5 font-tajawal">
+                  <label className="block text-sm font-medium text-text-dark-muted mb-1.5 font-tajawal">
                     <MapPin size={14} className="inline ml-1" />
                     {isAr ? "المدينة" : "City"} *
                   </label>
                   <select
                     value={form.city}
                     onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/30 bg-primary text-white transition ${errors.city ? "border-accent-rose" : "border-card-border"}`}
+                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/20 transition ${errors.city ? "border-accent-rose" : "border-surface-border"}`}
                   >
                     <option value="">{isAr ? "— اختر المدينة —" : "— Select city —"}</option>
                     {CITIES.map((city) => (
@@ -228,27 +228,27 @@ export default function CheckoutPage() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5 font-tajawal">
+                  <label className="block text-sm font-medium text-text-dark-muted mb-1.5 font-tajawal">
                     {isAr ? "العنوان التفصيلي" : "Street Address"} *
                   </label>
                   <input
                     type="text"
                     value={form.address}
                     onChange={(e) => setForm({ ...form, address: e.target.value })}
-                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/30 transition bg-primary text-white ${errors.address ? "border-accent-rose" : "border-card-border"}`}
+                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/20 transition ${errors.address ? "border-accent-rose" : "border-surface-border"}`}
                     placeholder={isAr ? "الشارع، البناية، الطابق..." : "Street, building, floor..."}
                   />
                   {errors.address && <p className="text-accent-rose text-xs mt-1">{errors.address}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1.5 font-tajawal">
+                  <label className="block text-sm font-medium text-text-dark-muted mb-1.5 font-tajawal">
                     {isAr ? "ملاحظات إضافية" : "Special Instructions"} ({isAr ? "اختياري" : "optional"})
                   </label>
                   <textarea
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
                     rows={2}
-                    className="w-full border border-card-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/30 transition resize-none bg-primary text-white"
+                    className="w-full border border-surface-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-accent/20 transition resize-none"
                     placeholder={isAr ? "مثال: اتصل قبل التوصيل" : "e.g. Call before delivery"}
                   />
                 </div>
@@ -256,18 +256,18 @@ export default function CheckoutPage() {
             </div>
 
             {/* Section 3: Payment */}
-            <div className="bg-card rounded-2xl p-6 border border-card-border">
-              <h2 className="font-bold text-white mb-5 flex items-center gap-2 font-tajawal">
+            <div className="bg-surface-card rounded-2xl p-6 border border-surface-border shadow-sm">
+              <h2 className="font-bold text-text-dark-heading mb-5 flex items-center gap-2 font-tajawal">
                 <span className="w-7 h-7 rounded-full bg-accent text-white text-xs font-bold flex items-center justify-center">3</span>
                 {isAr ? "طريقة الدفع" : "Payment Method"}
               </h2>
-              <div className="flex items-center gap-3 p-4 bg-accent/10 border-2 border-accent rounded-xl">
+              <div className="flex items-center gap-3 p-4 bg-accent/5 border-2 border-accent rounded-xl">
                 <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
                   <Check size={16} className="text-white" />
                 </div>
                 <div>
-                  <p className="font-bold text-white text-sm font-tajawal">{isAr ? "الدفع عند الاستلام" : "Cash on Delivery"}</p>
-                  <p className="text-xs text-text-secondary font-tajawal">{isAr ? "ادفع نقداً عند استلام طلبك" : "Pay cash when you receive your order"}</p>
+                  <p className="font-bold text-text-dark-heading text-sm font-tajawal">{isAr ? "الدفع عند الاستلام" : "Cash on Delivery"}</p>
+                  <p className="text-xs text-text-dark-muted font-tajawal">{isAr ? "ادفع نقداً عند استلام طلبك" : "Pay cash when you receive your order"}</p>
                 </div>
                 <CreditCard size={20} className="text-accent mr-auto" />
               </div>
@@ -276,8 +276,8 @@ export default function CheckoutPage() {
 
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-card rounded-2xl p-6 border border-card-border sticky top-20">
-              <h2 className="font-bold text-white mb-4 flex items-center gap-2 font-tajawal">
+            <div className="bg-surface-card rounded-2xl p-6 border border-surface-border shadow-sm sticky top-20">
+              <h2 className="font-bold text-text-dark-heading mb-4 flex items-center gap-2 font-tajawal">
                 <ShoppingBag size={18} className="text-accent" />
                 {isAr ? "ملخص الطلب" : "Order Summary"}
               </h2>
@@ -288,12 +288,12 @@ export default function CheckoutPage() {
                     <img
                       loading="lazy"
                       src={item.imageUrl || ""}
-                      className="w-12 h-12 rounded-lg object-cover bg-white flex-shrink-0"
+                      className="w-12 h-12 rounded-lg object-cover bg-slate-50 flex-shrink-0"
                       alt={item.name}
                       onError={handleImgError}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-white truncate font-tajawal">{item.name}</p>
+                      <p className="text-xs font-medium text-text-dark-heading truncate font-tajawal">{item.name}</p>
                       {item.selections && (
                         <div className="flex flex-wrap gap-x-2">
                           {Object.entries(item.selections).map(([key, val]) => (
@@ -303,26 +303,26 @@ export default function CheckoutPage() {
                           ))}
                         </div>
                       )}
-                      <p className="text-xs text-text-secondary">×{item.quantity}</p>
+                      <p className="text-xs text-text-dark-muted">×{item.quantity}</p>
                     </div>
-                    <span className="text-sm font-bold text-white font-mono" dir="ltr">${item.price * item.quantity}</span>
+                    <span className="text-sm font-bold text-text-dark-heading font-mono" dir="ltr">${item.price * item.quantity}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="border-t border-card-border pt-4 space-y-2">
+              <div className="border-t border-surface-border pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-secondary font-tajawal">{isAr ? "المجموع الفرعي" : "Subtotal"}</span>
-                  <span className="font-medium text-white font-mono" dir="ltr">${subtotal}</span>
+                  <span className="text-text-dark-muted font-tajawal">{isAr ? "المجموع الفرعي" : "Subtotal"}</span>
+                  <span className="font-medium text-text-dark-heading font-mono" dir="ltr">${subtotal}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-secondary font-tajawal">{isAr ? "التوصيل" : "Delivery"}</span>
-                  <span className={`font-medium font-mono ${deliveryFee === 0 && form.city ? "text-accent-emerald" : "text-white"}`} dir="ltr">
+                  <span className="text-text-dark-muted font-tajawal">{isAr ? "التوصيل" : "Delivery"}</span>
+                  <span className={`font-medium font-mono ${deliveryFee === 0 && form.city ? "text-accent-emerald" : "text-text-dark-heading"}`} dir="ltr">
                     {!form.city ? "—" : deliveryFee === 0 ? (isAr ? "مجاني" : "Free") : `$${deliveryFee}`}
                   </span>
                 </div>
-                <div className="flex justify-between text-base font-bold pt-2 border-t border-card-border">
-                  <span className="text-white font-tajawal">{isAr ? "الإجمالي" : "Total"}</span>
+                <div className="flex justify-between text-base font-bold pt-2 border-t border-surface-border">
+                  <span className="text-text-dark-heading font-tajawal">{isAr ? "الإجمالي" : "Total"}</span>
                   <span className="text-accent font-mono" dir="ltr">${total}</span>
                 </div>
               </div>
@@ -335,7 +335,7 @@ export default function CheckoutPage() {
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="w-full py-3.5 bg-accent text-white font-bold rounded-xl hover:bg-accent-hover transition-colors disabled:bg-card-border disabled:text-text-secondary disabled:cursor-not-allowed font-tajawal"
+                  className="w-full py-3.5 bg-accent text-white font-bold rounded-xl hover:bg-accent-hover transition-colors disabled:bg-slate-100 disabled:text-text-dark-muted disabled:cursor-not-allowed font-tajawal"
                 >
                   {submitting
                     ? (isAr ? "جارٍ إرسال الطلب..." : "Submitting...")
