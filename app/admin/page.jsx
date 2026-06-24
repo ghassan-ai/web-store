@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { subscribeToAllProducts, addProduct, updateProduct, deleteProduct, toggleActive, PRODUCT_CATEGORIES } from "@/supabase/products";
 import { subscribeToAllOrders, updateOrderStatus, deleteOrder } from "@/supabase/orders";
@@ -7,7 +8,6 @@ import ConfirmDialog from "@/components/ConfirmDialog/ConfirmDialog";
 import { signOut, onAuthChange } from "@/supabase/auth";
 import { uploadProductImage } from "@/supabase/storage";
 import { Edit2, Trash2, Check, X, Eye, EyeOff, Plus, List, LogOut, Search, ClipboardList, Upload, Loader2, Sparkles, ExternalLink, Info } from 'lucide-react';
-import { handleImgError } from "@/utils/imageHelpers";
 
 function ImageUploader({ imageUrl, onUploaded, error }) {
   const [uploading, setUploading] = useState(false);
@@ -323,6 +323,7 @@ export default function AdminPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
+  const [erroredImgs, setErroredImgs] = useState(new Set());
 
   const initialForm = {
     name: '',
@@ -608,7 +609,9 @@ export default function AdminPage() {
                           <React.Fragment key={product.id}>
                           <tr className="border-b border-gray-100 hover:bg-gray-50 transition">
                             <td className="p-4">
-                              <img loading="lazy" src={p.imageUrl || ''} alt={p.name} className="w-12 h-12 object-cover rounded-lg border shadow-sm" onError={handleImgError} />
+                              <div className="relative w-12 h-12 rounded-lg overflow-hidden border shadow-sm">
+                                <Image src={erroredImgs.has(product.id + '-thumb') ? '/placeholder.svg' : (p.imageUrl || '/placeholder.svg')} alt={p.name} fill className="object-cover" sizes="48px" onError={() => setErroredImgs(prev => new Set(prev).add(product.id + '-thumb'))} />
+                              </div>
                             </td>
                             <td className="p-4 font-medium text-gray-900">
                               {isEditing ? (
@@ -895,13 +898,9 @@ export default function AdminPage() {
                         ) : (
                           <>
                             <div className="flex gap-4 items-start">
-                              <img
-                                loading="lazy"
-                                src={p.imageUrl || ''}
-                                alt={p.name}
-                                className="w-20 h-20 object-cover rounded-lg border shadow-sm flex-shrink-0"
-                                onError={handleImgError}
-                              />
+                              <div className="relative w-20 h-20 rounded-lg overflow-hidden border shadow-sm flex-shrink-0">
+                                <Image src={erroredImgs.has(product.id + '-mobile') ? '/placeholder.svg' : (p.imageUrl || '/placeholder.svg')} alt={p.name} fill className="object-cover" sizes="80px" onError={() => setErroredImgs(prev => new Set(prev).add(product.id + '-mobile'))} />
+                              </div>
                               <div className="flex-1 min-w-0">
                                 <h3 className="font-bold text-gray-900 text-base truncate">{p.name}</h3>
                                 <div className="flex items-center gap-3 mt-1.5">

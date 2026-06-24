@@ -1,5 +1,6 @@
 'use client';
 import React, { useRef } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useGSAP } from "@gsap/react";
@@ -8,9 +9,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { subscribeToProducts } from "@/supabase/products";
 import { useLang } from "@/context/LanguageContext";
 import Hero from "@/components/Hero/Hero";
-import CategoryGrid from "@/components/CategoryGrid/CategoryGrid";
-import NewArrivals from "@/components/NewArrivals/NewArrivals";
-import ProductQuiz from "@/components/ProductQuiz/ProductQuiz";
+
+const CategoryGrid = dynamic(() => import("@/components/CategoryGrid/CategoryGrid"), { ssr: false });
+const NewArrivals = dynamic(() => import("@/components/NewArrivals/NewArrivals"), { ssr: false });
+const ProductQuiz = dynamic(() => import("@/components/ProductQuiz/ProductQuiz"), { ssr: false });
 
 gsap.registerPlugin(ScrollTrigger);
 

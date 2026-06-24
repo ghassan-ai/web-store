@@ -1,12 +1,12 @@
 'use client';
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Check, MapPin, CreditCard, ShoppingBag, MessageCircle } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
 import { createOrder } from "@/supabase/orders";
 import siteConfig from "@/config/siteConfig";
-import { handleImgError } from "@/utils/imageHelpers";
 
 const CITIES = [
   { value: "طرابلس", label: "طرابلس — توصيل مجاني", labelEn: "Tripoli — Free Delivery", fee: 0 },
@@ -33,6 +33,7 @@ export default function CheckoutPage() {
     notes: "",
   });
   const [errors, setErrors] = useState({});
+  const [erroredImgs, setErroredImgs] = useState(new Set());
   const [submitting, setSubmitting] = useState(false);
 
   const subtotal = cartItems.reduce((t, item) => t + item.price * item.quantity, 0);
@@ -285,13 +286,16 @@ export default function CheckoutPage() {
               <div className="space-y-3 mb-5 max-h-64 overflow-y-auto">
                 {cartItems.map((item) => (
                   <div key={item.cartKey || item.id} className="flex items-center gap-3">
-                    <img
-                      loading="lazy"
-                      src={item.imageUrl || ""}
-                      className="w-12 h-12 rounded-lg object-cover bg-slate-50 flex-shrink-0"
-                      alt={item.name}
-                      onError={handleImgError}
-                    />
+                    <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-slate-50 flex-shrink-0">
+                      <Image
+                        src={erroredImgs.has(item.cartKey || item.id) ? "/placeholder.svg" : (item.imageUrl || "/placeholder.svg")}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                        onError={() => setErroredImgs(prev => new Set(prev).add(item.cartKey || item.id))}
+                      />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-text-dark-heading truncate font-tajawal">{item.name}</p>
                       {item.selections && (

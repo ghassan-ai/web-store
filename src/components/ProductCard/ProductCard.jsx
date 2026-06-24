@@ -1,18 +1,18 @@
 'use client';
-import React, { useCallback } from "react";
+import React, { useState, useCallback } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Phone } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
 import siteConfig from "@/config/siteConfig";
-import { handleImgError } from "@/utils/imageHelpers";
 
 const ProductCard = React.memo(function ProductCard({ product, viewMode = "grid" }) {
   const { addToCart } = useCart();
   const { isAr } = useLang();
   const router = useRouter();
 
-  const imageUrl = product.imageUrl || "";
+  const [imgSrc, setImgSrc] = useState(product.imageUrl || "/placeholder.svg");
   const isOutOfStock = product.stock === 0;
   const colors = product.colors || [];
 
@@ -28,7 +28,7 @@ const ProductCard = React.memo(function ProductCard({ product, viewMode = "grid"
         className="flex items-center gap-4 bg-surface-card rounded-xl p-3 border border-surface-border shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(61,139,255,0.08)] hover:border-accent/30 transition-all duration-300 cursor-pointer"
       >
         <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-white border border-surface-border">
-          <img loading="lazy" src={imageUrl} alt={product.name} className="w-full h-full object-contain p-1.5" onError={handleImgError} />
+          <Image src={imgSrc} alt={product.name} fill className="object-contain p-1.5" sizes="80px" onError={() => setImgSrc("/placeholder.svg")} />
           {isOutOfStock && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <span className="text-[9px] text-white font-bold">SOLD</span>
@@ -70,12 +70,14 @@ const ProductCard = React.memo(function ProductCard({ product, viewMode = "grid"
       onClick={() => router.push(`/product/${product.id}`)}
       className="group flex flex-col rounded-2xl overflow-hidden bg-surface-card border border-surface-border shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(61,139,255,0.10)] hover:border-accent/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer"
     >
-      <div className="product-image-box border-b border-surface-border">
-        <img
-          loading="lazy"
-          src={imageUrl}
+      <div className="product-image-box border-b border-surface-border relative">
+        <Image
+          src={imgSrc}
           alt={product.name}
-          onError={handleImgError}
+          fill
+          className="object-contain !max-w-[80%] !max-h-[80%] !inset-0 !m-auto"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          onError={() => setImgSrc("/placeholder.svg")}
         />
 
         {isOutOfStock && (

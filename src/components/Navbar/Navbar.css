@@ -261,7 +261,7 @@ input[type="search"]::-webkit-search-decoration {
 .nav-logo-text {
   font-size: 1rem;
   font-weight: 700;
-  font-family: 'Tajawal', sans-serif;
+  font-family: var(--font-tajawal), 'Tajawal', sans-serif;
 }
 
 /* Mobile overlay & drawer restyle */
@@ -303,7 +303,7 @@ input[type="search"]::-webkit-search-decoration {
   font-size: 1.1rem;
   font-weight: 700;
   color: #1E293B;
-  font-family: 'Tajawal', sans-serif;
+  font-family: var(--font-tajawal), 'Tajawal', sans-serif;
 }
 
 .drawer-close {

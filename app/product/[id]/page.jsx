@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ShoppingCart, MessageCircle } from "lucide-react";
@@ -7,7 +8,6 @@ import { subscribeToProducts } from "@/supabase/products";
 import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
 import siteConfig from "@/config/siteConfig";
-import { handleImgError } from "@/utils/imageHelpers";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -22,6 +22,8 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState({});
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [mainImgSrc, setMainImgSrc] = useState("/placeholder.svg");
+  const [erroredImgs, setErroredImgs] = useState(new Set());
 
   useEffect(() => {
     setLoading(true);
@@ -29,6 +31,7 @@ export default function ProductDetailPage() {
       setAllProducts(data);
       const found = data.find((p) => p.id === id);
       setProduct(found || null);
+      setMainImgSrc(found?.imageUrl || "/placeholder.svg");
       setQuantity(1);
       setLoading(false);
     });
@@ -122,11 +125,14 @@ export default function ProductDetailPage() {
           <div className="grid md:grid-cols-2 gap-0">
             {/* Image */}
             <div className="relative aspect-square bg-white overflow-hidden cursor-pointer" onClick={() => setLightboxOpen(true)}>
-              <img
-                src={product.imageUrl || ""}
+              <Image
+                src={mainImgSrc}
                 alt={product.name}
-                className="absolute inset-[6%] w-[88%] h-[88%] object-contain"
-                onError={handleImgError}
+                fill
+                priority
+                className="object-contain !inset-[6%] !w-[88%] !h-[88%]"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                onError={() => setMainImgSrc("/placeholder.svg")}
               />
             </div>
 
@@ -256,12 +262,14 @@ export default function ProductDetailPage() {
                   href={`/product/${p.id}`}
                   className="group rounded-xl overflow-hidden bg-surface-card border border-surface-border shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(61,139,255,0.10)] hover:border-accent/30 hover:-translate-y-0.5 transition-all duration-300"
                 >
-                  <div className="product-image-box border-b border-surface-border">
-                    <img
-                      loading="lazy"
-                      src={p.imageUrl || ""}
+                  <div className="product-image-box border-b border-surface-border relative">
+                    <Image
+                      src={erroredImgs.has(p.id) ? "/placeholder.svg" : (p.imageUrl || "/placeholder.svg")}
                       alt={p.name}
-                      onError={handleImgError}
+                      fill
+                      className="object-contain !max-w-[80%] !max-h-[80%] !inset-0 !m-auto"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                      onError={() => setErroredImgs(prev => new Set(prev).add(p.id))}
                     />
                   </div>
                   <div className="p-3 space-y-1">
@@ -286,12 +294,17 @@ export default function ProductDetailPage() {
           >
             &times;
           </button>
-          <img
-            src={product.imageUrl || ""}
-            alt={product.name}
-            className="max-w-full max-h-[90vh] object-contain rounded-lg"
-            onClick={(e) => e.stopPropagation()}
-          />
+          <div className="relative w-full h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <Image
+              src={mainImgSrc}
+              alt={product.name}
+              fill
+              className="object-contain rounded-lg"
+              sizes="100vw"
+              quality={90}
+              onError={() => setMainImgSrc("/placeholder.svg")}
+            />
+          </div>
         </div>
       )}
     </div>

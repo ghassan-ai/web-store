@@ -1,5 +1,6 @@
 'use client';
 import { useState, useCallback, useEffect, useRef } from "react";
+import Image from "next/image";
 import { MessageCircle, ChevronLeft, ChevronRight, X, Sparkles } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -7,7 +8,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLang } from "@/context/LanguageContext";
 import siteConfig from "@/config/siteConfig";
 import { FIRST_QUESTION, getQuizFlow, matchProducts } from "@/config/quizConfig";
-import { handleImgError } from "@/utils/imageHelpers";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,6 +17,7 @@ function QuizModal({ isOpen, onClose, products }) {
   const [answers, setAnswers] = useState({});
   const [results, setResults] = useState(null);
   const [flow, setFlow] = useState(null);
+  const [erroredImgs, setErroredImgs] = useState(new Set());
 
   const currentQuestions = flow ? [FIRST_QUESTION, ...flow.questions] : [FIRST_QUESTION];
   const totalSteps = currentQuestions.length;
@@ -114,13 +115,16 @@ function QuizModal({ isOpen, onClose, products }) {
               <div className="space-y-3">
                 {results.map((product) => (
                   <div key={product.id} className="flex items-center gap-3 p-3 bg-primary rounded-xl border border-card-border">
-                    <img
-                      loading="lazy"
-                      src={product.imageUrl || ""}
-                      alt={product.name}
-                      className="w-14 h-14 rounded-lg object-cover bg-white"
-                      onError={handleImgError}
-                    />
+                    <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-white flex-shrink-0">
+                      <Image
+                        src={erroredImgs.has(product.id) ? "/placeholder.svg" : (product.imageUrl || "/placeholder.svg")}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                        onError={() => setErroredImgs(prev => new Set(prev).add(product.id))}
+                      />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-white truncate font-tajawal">{product.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">

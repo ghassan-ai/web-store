@@ -20,7 +20,11 @@
       "Bash(git *)",
       "Bash(npm ls *)",
       "Bash(xargs ls -1)",
-      "Bash(xargs ls -la)"
+      "Bash(xargs ls -la)",
+      "Bash(grep -v \"^\\\\.\\\\.$\")",
+      "Bash(ANALYZE=true npm run build)",
+      "Bash(sort -t: -k2 -n -r)",
+      "Bash(sort -t: -k4 -n -r)"
     ]
   }
 }

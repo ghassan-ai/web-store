@@ -1,15 +1,16 @@
 'use client';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
-import { handleImgError } from "@/utils/imageHelpers";
 
 export default function CartDrawer({ open, onClose }) {
   const { cartItems, removeFromCart, updateQuantity } = useCart();
   const { isAr } = useLang();
   const router = useRouter();
+  const [erroredImgs, setErroredImgs] = useState(new Set());
 
   const subtotal = cartItems.reduce((t, item) => t + item.price * item.quantity, 0);
 
@@ -57,13 +58,16 @@ export default function CartDrawer({ open, onClose }) {
               <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
                 {cartItems.map((item) => (
                   <div key={item.cartKey || item.id} className="flex items-center gap-3 bg-primary rounded-xl p-3 border border-card-border">
-                    <img
-                      loading="lazy"
-                      src={item.imageUrl || item.images?.[0] || item.image || ""}
-                      className="w-14 h-14 rounded-lg object-cover flex-shrink-0 bg-white"
-                      alt={item.name}
-                      onError={handleImgError}
-                    />
+                    <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-white">
+                      <Image
+                        src={erroredImgs.has(item.cartKey || item.id) ? "/placeholder.svg" : (item.imageUrl || item.images?.[0] || item.image || "/placeholder.svg")}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                        onError={() => setErroredImgs(prev => new Set(prev).add(item.cartKey || item.id))}
+                      />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate font-tajawal">{item.name}</p>
                       {item.selections && (

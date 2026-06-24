@@ -1,11 +1,16 @@
 'use client';
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useCart } from '@/context/CartContext';
 import Navbar from '@/components/Navbar/Navbar';
 import CartDrawer from '@/components/CartDrawer/CartDrawer';
 import Footer from '@/components/Footer/Footer';
 import ScrollToTop from '@/components/ScrollToTop/ScrollToTop';
-import AmbientBackground from '@/components/AmbientBackground/AmbientBackground';
+
+const AmbientBackground = dynamic(
+  () => import('@/components/AmbientBackground/AmbientBackground'),
+  { ssr: false }
+);
 
 
 export default function AppShell({ children }) {
