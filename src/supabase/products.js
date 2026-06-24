@@ -156,14 +156,14 @@ export const updateProduct = async (id, updateData) => {
   return await res.json();
 };
 
-export const deleteProduct = async (id) => {
+export const deleteProduct = async (id, imageUrl) => {
   const res = await fetch('/api/admin/products', {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
       'x-admin-token': getAdminToken(),
     },
-    body: JSON.stringify({ id }),
+    body: JSON.stringify({ id, imageUrl }),
   });
 
   if (!res.ok) {

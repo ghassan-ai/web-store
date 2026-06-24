@@ -121,11 +121,11 @@ export default function ProductDetailPage() {
         <div className="bg-surface-card rounded-2xl border border-surface-border shadow-sm overflow-hidden">
           <div className="grid md:grid-cols-2 gap-0">
             {/* Image */}
-            <div className="aspect-square bg-slate-50 overflow-hidden cursor-pointer" onClick={() => setLightboxOpen(true)}>
+            <div className="relative aspect-square bg-white overflow-hidden cursor-pointer" onClick={() => setLightboxOpen(true)}>
               <img
                 src={product.imageUrl || ""}
                 alt={product.name}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                className="absolute inset-[6%] w-[88%] h-[88%] object-contain"
                 onError={handleImgError}
               />
             </div>
@@ -254,20 +254,19 @@ export default function ProductDetailPage() {
                 <Link
                   key={p.id}
                   href={`/product/${p.id}`}
-                  className="group rounded-xl overflow-hidden bg-surface-card border border-surface-border shadow-sm hover:border-accent/40 transition-all duration-300"
+                  className="group rounded-xl overflow-hidden bg-surface-card border border-surface-border shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(61,139,255,0.10)] hover:border-accent/30 hover:-translate-y-0.5 transition-all duration-300"
                 >
-                  <div className="aspect-square bg-slate-50 overflow-hidden">
+                  <div className="product-image-box border-b border-surface-border">
                     <img
                       loading="lazy"
                       src={p.imageUrl || ""}
                       alt={p.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={handleImgError}
                     />
                   </div>
-                  <div className="p-3">
-                    <h3 className="text-xs sm:text-sm font-semibold text-text-dark-heading line-clamp-2 mb-1 font-tajawal">{p.name}</h3>
-                    <span className="text-sm font-bold text-accent font-mono" dir="ltr">${p.price}</span>
+                  <div className="p-3 space-y-1">
+                    <h3 className="text-xs sm:text-sm font-semibold text-text-dark-heading leading-snug line-clamp-2 font-tajawal">{p.name}</h3>
+                    <span className="block text-sm font-bold text-accent font-mono tracking-tight" dir="ltr">${p.price}</span>
                   </div>
                 </Link>
               ))}

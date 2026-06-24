@@ -1,53 +1,54 @@
 'use client';
-import React from "react";
+import React, { useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLang } from "@/context/LanguageContext";
-import { handleImgError } from "@/utils/imageHelpers";
+import ProductCard from "@/components/ProductCard/ProductCard";
+
+gsap.registerPlugin(ScrollTrigger);
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl overflow-hidden animate-pulse bg-surface-card border border-surface-border">
-      <div className="aspect-square bg-slate-100" />
-      <div className="p-4 space-y-2">
-        <div className="h-4 bg-slate-100 rounded w-2/3" />
-        <div className="h-5 bg-slate-100 rounded w-1/4" />
+    <div className="rounded-2xl overflow-hidden animate-pulse bg-surface-card border border-surface-border shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+      <div className="product-image-box !bg-slate-50 border-b border-surface-border" />
+      <div className="p-3 sm:p-4 space-y-3">
+        <div className="h-4 bg-slate-100 rounded w-3/4" />
+        <div className="h-5 bg-slate-100 rounded w-1/3" />
+        <div className="h-8 bg-slate-100 rounded-full w-full" />
       </div>
     </div>
   );
 }
 
-const ArrivalCard = React.memo(function ArrivalCard({ product }) {
-  const isOutOfStock = product.stock === 0;
-
-  return (
-    <Link href={`/product/${product.id}`} className="group rounded-2xl overflow-hidden bg-surface-card border border-surface-border shadow-sm hover:border-accent/40 hover:-translate-y-1 transition-all duration-400">
-      <div className="relative aspect-square bg-slate-50 overflow-hidden">
-        <img
-          loading="lazy"
-          src={product.imageUrl || ""}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          onError={handleImgError}
-        />
-        {isOutOfStock && (
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] flex items-center justify-center">
-            <span className="bg-accent-rose text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">نفذت الكمية</span>
-          </div>
-        )}
-      </div>
-      <div className="p-4 sm:p-5">
-        <h3 className="text-sm font-semibold text-text-dark-heading line-clamp-2 mb-3 font-tajawal">{product.name}</h3>
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-accent font-mono" dir="ltr">${product.price}</span>
-        </div>
-      </div>
-    </Link>
-  );
-});
-
 export default function NewArrivals({ products = [], loading = false }) {
   const { isAr } = useLang();
+  const sectionRef = useRef(null);
+
+  useGSAP(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) return;
+
+    const cards = gsap.utils.toArray(sectionRef.current.querySelectorAll('.arrival-card-wrapper'));
+    gsap.set(cards, { opacity: 0, y: 30 });
+
+    ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: "top 75%",
+      once: true,
+      onEnter: () => {
+        gsap.to(cards, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.07,
+          ease: "power3.out",
+        });
+      },
+    });
+  }, { scope: sectionRef });
 
   const latestProducts = React.useMemo(() => {
     return [...products]
@@ -56,7 +57,7 @@ export default function NewArrivals({ products = [], loading = false }) {
   }, [products]);
 
   return (
-    <section className="py-14 sm:py-20">
+    <section ref={sectionRef} className="py-14 sm:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between mb-10">
           <div>
@@ -80,7 +81,9 @@ export default function NewArrivals({ products = [], loading = false }) {
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
             : latestProducts.map((product) => (
-                <ArrivalCard key={product.id} product={product} />
+                <div key={product.id} className="arrival-card-wrapper">
+                  <ProductCard product={product} />
+                </div>
               ))}
         </div>
       </div>

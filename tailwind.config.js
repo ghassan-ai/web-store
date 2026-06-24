@@ -28,6 +28,7 @@ module.exports = {
         accent: {
           DEFAULT: '#3D8BFF',
           hover: '#5AA0FF',
+          dark: '#2B6FCC',
           emerald: '#2ECC71',
           rose: '#E74C6F',
         },

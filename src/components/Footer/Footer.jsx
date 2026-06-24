@@ -1,14 +1,41 @@
 'use client';
+import { useRef } from "react";
 import Link from "next/link";
 import { Phone, MapPin, Instagram, Facebook, Mail } from "lucide-react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLang } from "@/context/LanguageContext";
 import siteConfig from "@/config/siteConfig";
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function Footer() {
   const { isAr } = useLang();
+  const footerRef = useRef(null);
+
+  useGSAP(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) return;
+
+    gsap.set(footerRef.current, { opacity: 0 });
+
+    ScrollTrigger.create({
+      trigger: footerRef.current,
+      start: "top 90%",
+      once: true,
+      onEnter: () => {
+        gsap.to(footerRef.current, {
+          opacity: 1,
+          duration: 0.6,
+          ease: "power1.out",
+        });
+      },
+    });
+  }, { scope: footerRef });
 
   return (
-    <footer id="contact" className="bg-primary-dark text-text-secondary border-t border-card-border">
+    <footer ref={footerRef} id="contact" className="bg-primary-dark text-text-secondary border-t border-card-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
 

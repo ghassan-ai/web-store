@@ -1,6 +1,6 @@
 .product-grid {
   display: grid;
-  gap: 16px 8px;
+  gap: 16px 12px;
   grid-template-columns: repeat(2, 1fr);
 }
 @media (min-width: 600px) {

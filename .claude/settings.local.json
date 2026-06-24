@@ -9,7 +9,18 @@
       "Bash(npm run *)",
       "Bash(node *)",
       "Bash(npm install *)",
-      "Bash(npm uninstall *)"
+      "Bash(npm uninstall *)",
+      "Bash(grep -E \"\\(^/mnt.*page\\\\.tsx$|^/mnt.*layout\\\\.tsx$\\)\")",
+      "Bash(xargs -I {} bash -c 'echo \"=== {} ===\" && head -50 {}')",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:huggingface.co)",
+      "Bash(python3 -c ' *)",
+      "Bash(git *)",
+      "Bash(npm ls *)",
+      "Bash(xargs ls -1)",
+      "Bash(xargs ls -la)"
     ]
   }
 }

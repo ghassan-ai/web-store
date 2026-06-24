@@ -41,15 +41,21 @@ export default function ConstellationBackground() {
       }));
     }
 
+    let time = 0;
+
     function draw() {
       const w = canvas.offsetWidth;
       const h = canvas.offsetHeight;
       ctx.clearRect(0, 0, w, h);
 
       if (!reducedMotion) {
+        time += 0.002;
+        const waveX = Math.sin(time) * 0.2;
+        const waveY = Math.cos(time * 0.7) * 0.15;
+
         points.forEach((p) => {
-          p.x += p.vx;
-          p.y += p.vy;
+          p.x += p.vx + waveX * (p.radius / 1.5);
+          p.y += p.vy + waveY * (p.radius / 1.5);
           if (p.x < 0 || p.x > w) p.vx *= -1;
           if (p.y < 0 || p.y > h) p.vy *= -1;
         });

@@ -9,6 +9,14 @@ function validateAdmin(request) {
   return true;
 }
 
+function extractStoragePath(imageUrl) {
+  if (!imageUrl) return null;
+  const marker = '/storage/v1/object/public/product-images/';
+  const idx = imageUrl.indexOf(marker);
+  if (idx === -1) return null;
+  return imageUrl.substring(idx + marker.length);
+}
+
 export async function POST(request) {
   if (!validateAdmin(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -83,10 +91,17 @@ export async function DELETE(request) {
 
   const supabaseAdmin = getSupabaseAdmin();
   const body = await request.json();
-  const { id } = body;
+  const { id, imageUrl } = body;
 
   if (!id) {
     return NextResponse.json({ error: 'Missing product id' }, { status: 400 });
+  }
+
+  if (imageUrl) {
+    const storagePath = extractStoragePath(imageUrl);
+    if (storagePath) {
+      await supabaseAdmin.storage.from('product-images').remove([storagePath]);
+    }
   }
 
   const { error } = await supabaseAdmin

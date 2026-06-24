@@ -1,10 +1,15 @@
 'use client';
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { MessageCircle, ChevronLeft, ChevronRight, X, Sparkles } from "lucide-react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLang } from "@/context/LanguageContext";
 import siteConfig from "@/config/siteConfig";
 import { FIRST_QUESTION, getQuizFlow, matchProducts } from "@/config/quizConfig";
 import { handleImgError } from "@/utils/imageHelpers";
+
+gsap.registerPlugin(ScrollTrigger);
 
 function QuizModal({ isOpen, onClose, products }) {
   const { isAr } = useLang();
@@ -196,6 +201,30 @@ function QuizModal({ isOpen, onClose, products }) {
 export default function ProductQuiz({ products = [] }) {
   const { isAr } = useLang();
   const [quizOpen, setQuizOpen] = useState(false);
+  const sectionRef = useRef(null);
+
+  useGSAP(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) return;
+
+    const cards = gsap.utils.toArray(sectionRef.current.querySelectorAll('.quiz-action-card'));
+    gsap.set(cards, { opacity: 0, y: 30 });
+
+    ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: "top 75%",
+      once: true,
+      onEnter: () => {
+        gsap.to(cards, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.12,
+          ease: "power3.out",
+        });
+      },
+    });
+  }, { scope: sectionRef });
 
   const whatsappUrl = `https://wa.me/${siteConfig.contact.whatsapp}?text=${encodeURIComponent(
     isAr ? "مرحباً، أريد الاستفسار عن منتج من متجر " + siteConfig.storeName : "Hi, I'd like to inquire about a product"
@@ -203,11 +232,11 @@ export default function ProductQuiz({ products = [] }) {
 
   return (
     <>
-      <section className="py-14 sm:py-20">
+      <section ref={sectionRef} className="py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid md:grid-cols-2 gap-6">
             {/* Quiz Card */}
-            <div className="bg-surface-card rounded-2xl p-8 sm:p-10 border border-surface-border shadow-sm text-center hover:border-accent/40 transition-all duration-300 hover:-translate-y-0.5">
+            <div className="quiz-action-card bg-surface-card rounded-2xl p-8 sm:p-10 border border-surface-border shadow-sm text-center hover:border-accent/40 transition-all duration-300 hover:-translate-y-0.5">
               <span className="text-4xl block mb-5">🤔</span>
               <h3 className="text-xl sm:text-2xl font-bold text-text-dark-heading mb-3 font-tajawal">
                 {isAr ? "مش عارف شو تختار؟" : "Not sure what to pick?"}
@@ -225,7 +254,7 @@ export default function ProductQuiz({ products = [] }) {
             </div>
 
             {/* WhatsApp Card */}
-            <div className="bg-surface-card rounded-2xl p-8 sm:p-10 border border-surface-border shadow-sm text-center hover:border-accent-emerald/40 transition-all duration-300 hover:-translate-y-0.5">
+            <div className="quiz-action-card bg-surface-card rounded-2xl p-8 sm:p-10 border border-surface-border shadow-sm text-center hover:border-accent/40 transition-all duration-300 hover:-translate-y-0.5">
               <span className="text-4xl block mb-5">💬</span>
               <h3 className="text-xl sm:text-2xl font-bold text-text-dark-heading mb-3 font-tajawal">
                 {isAr ? "اطلب عبر واتساب" : "Order via WhatsApp"}
@@ -237,7 +266,7 @@ export default function ProductQuiz({ products = [] }) {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-7 py-3.5 bg-accent-emerald text-white font-semibold rounded-xl hover:brightness-110 transition-all duration-300"
+                className="inline-flex items-center gap-2 px-7 py-3.5 border-2 border-accent text-accent bg-transparent font-semibold rounded-xl hover:bg-accent/10 transition-all duration-300"
               >
                 <MessageCircle size={18} />
                 {isAr ? "ابدأ المحادثة" : "Start Chat"}

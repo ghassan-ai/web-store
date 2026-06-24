@@ -18,7 +18,7 @@ function HeroHeadline({ line1, line2 }) {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reducedMotion || !line2Ref.current) return;
     gsap.to(line2Ref.current, {
-      textShadow: "0 0 20px rgba(45, 212, 191, 0.6), 0 0 40px rgba(45, 212, 191, 0.3)",
+      textShadow: "0 0 20px rgba(61, 139, 255, 0.6), 0 0 40px rgba(61, 139, 255, 0.3)",
       duration: 2,
       ease: "sine.inOut",
       yoyo: true,

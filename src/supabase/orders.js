@@ -154,3 +154,19 @@ export async function updateOrderStatus(docId, status) {
     throw new Error(err.error || 'Failed to update order status');
   }
 }
+
+export async function deleteOrder(orderId) {
+  const res = await fetch('/api/admin/orders', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-token': getAdminToken(),
+    },
+    body: JSON.stringify({ id: orderId }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || 'Failed to delete order');
+  }
+}

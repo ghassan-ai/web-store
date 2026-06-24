@@ -13,7 +13,7 @@ input[type="search"]::-webkit-search-decoration {
   background: rgba(11, 20, 48, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(45, 212, 191, 0.1);
+  border-bottom: 1px solid rgba(61, 139, 255, 0.1);
   transition: box-shadow 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
 }
 
@@ -42,8 +42,8 @@ input[type="search"]::-webkit-search-decoration {
 }
 
 .nav-link:hover {
-  color: #2dd4bf;
-  background: rgba(45, 212, 191, 0.08);
+  color: #3D8BFF;
+  background: rgba(61, 139, 255, 0.08);
 }
 
 .nav-link:active {
@@ -76,8 +76,8 @@ input[type="search"]::-webkit-search-decoration {
 }
 
 .nav-action:hover {
-  color: #2dd4bf;
-  background: rgba(45, 212, 191, 0.08);
+  color: #3D8BFF;
+  background: rgba(61, 139, 255, 0.08);
 }
 
 @media (min-width: 1024px) {
@@ -97,16 +97,16 @@ input[type="search"]::-webkit-search-decoration {
   font-size: 0.75rem;
   font-weight: 700;
   color: rgba(200, 210, 230, 0.8);
-  border: 1.5px solid rgba(45, 212, 191, 0.25);
+  border: 1.5px solid rgba(61, 139, 255, 0.25);
   background: transparent;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .nav-lang:hover {
-  color: #2dd4bf;
-  border-color: rgba(45, 212, 191, 0.5);
-  background: rgba(45, 212, 191, 0.06);
+  color: #3D8BFF;
+  border-color: rgba(61, 139, 255, 0.5);
+  background: rgba(61, 139, 255, 0.06);
 }
 
 /* Cart badge */
@@ -117,7 +117,7 @@ input[type="search"]::-webkit-search-decoration {
   min-width: 18px;
   height: 18px;
   border-radius: 9999px;
-  background: #0d9488;
+  background: #3D8BFF;
   color: #ffffff;
   font-size: 10px;
   font-weight: 700;
@@ -129,7 +129,7 @@ input[type="search"]::-webkit-search-decoration {
 
 /* Search bar */
 .nav-search-bar {
-  border-top: 1px solid rgba(45, 212, 191, 0.1);
+  border-top: 1px solid rgba(61, 139, 255, 0.1);
   background: rgba(11, 20, 48, 0.98);
   backdrop-filter: blur(12px);
   padding: 12px 16px;
@@ -138,7 +138,7 @@ input[type="search"]::-webkit-search-decoration {
 .nav-search-input {
   width: 100%;
   background: rgba(15, 25, 55, 0.8);
-  border: 1.5px solid rgba(45, 212, 191, 0.2);
+  border: 1.5px solid rgba(61, 139, 255, 0.2);
   border-radius: 12px;
   padding: 10px 40px 10px 16px;
   font-size: 0.875rem;
@@ -152,8 +152,8 @@ input[type="search"]::-webkit-search-decoration {
 }
 
 .nav-search-input:focus {
-  border-color: #2dd4bf;
-  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.1);
+  border-color: #3D8BFF;
+  box-shadow: 0 0 0 3px rgba(61, 139, 255, 0.1);
 }
 
 /* Mobile bottom nav */
@@ -172,7 +172,7 @@ input[type="search"]::-webkit-search-decoration {
     background: rgba(10, 18, 40, 0.97);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid rgba(45, 212, 191, 0.1);
+    border-top: 1px solid rgba(61, 139, 255, 0.1);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
     padding: 8px 4px;
     padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
@@ -210,7 +210,7 @@ input[type="search"]::-webkit-search-decoration {
 }
 
 .bottom-nav-item--active {
-  color: #2dd4bf;
+  color: #3D8BFF;
 }
 
 .bottom-nav-item--active .bottom-nav-icon svg {
@@ -218,7 +218,7 @@ input[type="search"]::-webkit-search-decoration {
 }
 
 .bottom-nav-item:hover {
-  color: #2dd4bf;
+  color: #3D8BFF;
 }
 
 .bottom-nav-icon {

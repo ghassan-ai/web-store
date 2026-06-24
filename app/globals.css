@@ -61,6 +61,24 @@
   }
 }
 
+@layer components {
+  .product-image-box {
+    width: 100%;
+    aspect-ratio: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+  }
+  .product-image-box img {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+  }
+}
+
 @layer utilities {
   .line-clamp-2 {
     display: -webkit-box;

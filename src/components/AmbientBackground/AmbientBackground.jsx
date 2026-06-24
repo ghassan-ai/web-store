@@ -3,9 +3,23 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
+function generateWavePath(width, height, amplitude, frequency, yOffset) {
+  let d = `M 0 ${yOffset}`;
+  const step = 10;
+  for (let x = 0; x <= width; x += step) {
+    const y = yOffset + Math.sin((x / width) * Math.PI * 2 * frequency) * amplitude;
+    d += ` L ${x} ${y}`;
+  }
+  d += ` L ${width} ${height} L 0 ${height} Z`;
+  return d;
+}
+
 export default function AmbientBackground() {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
+  const wave1Ref = useRef(null);
+  const wave2Ref = useRef(null);
+  const wave3Ref = useRef(null);
 
   useGSAP(() => {
     const canvas = canvasRef.current;
@@ -73,6 +87,25 @@ export default function AmbientBackground() {
       draw();
     } else {
       gsap.ticker.add(draw);
+
+      gsap.to(wave1Ref.current, {
+        x: "-50%",
+        duration: 20,
+        repeat: -1,
+        ease: "none",
+      });
+      gsap.to(wave2Ref.current, {
+        x: "-50%",
+        duration: 25,
+        repeat: -1,
+        ease: "none",
+      });
+      gsap.to(wave3Ref.current, {
+        x: "-50%",
+        duration: 18,
+        repeat: -1,
+        ease: "none",
+      });
     }
 
     const handleResize = () => { resize(); initOrbs(); };
@@ -84,9 +117,54 @@ export default function AmbientBackground() {
     };
   }, { scope: containerRef });
 
+  const svgWidth = 2400;
+  const viewHeight = 200;
+
+  const wave1Path = generateWavePath(svgWidth, viewHeight, 30, 2, 80);
+  const wave2Path = generateWavePath(svgWidth, viewHeight, 20, 3, 100);
+  const wave3Path = generateWavePath(svgWidth, viewHeight, 25, 1.5, 90);
+
   return (
     <div ref={containerRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
       <canvas ref={canvasRef} className="w-full h-full" />
+
+      <div className="absolute inset-0 overflow-hidden">
+        <svg
+          ref={wave1Ref}
+          className="absolute bottom-[15%] left-0"
+          width="200%"
+          height="200"
+          viewBox={`0 0 ${svgWidth} ${viewHeight}`}
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path d={wave1Path} fill="rgba(61, 139, 255, 0.06)" />
+        </svg>
+
+        <svg
+          ref={wave2Ref}
+          className="absolute bottom-[40%] left-0"
+          width="200%"
+          height="180"
+          viewBox={`0 0 ${svgWidth} ${viewHeight}`}
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path d={wave2Path} fill="rgba(61, 139, 255, 0.04)" />
+        </svg>
+
+        <svg
+          ref={wave3Ref}
+          className="absolute bottom-[65%] left-0"
+          width="200%"
+          height="160"
+          viewBox={`0 0 ${svgWidth} ${viewHeight}`}
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path d={wave3Path} fill="rgba(61, 139, 255, 0.05)" />
+        </svg>
+      </div>
     </div>
   );
 }

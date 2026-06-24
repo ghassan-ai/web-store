@@ -1,23 +1,26 @@
 'use client';
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { subscribeToAllProducts, addProduct, updateProduct, deleteProduct, toggleActive, PRODUCT_CATEGORIES } from "@/supabase/products";
-import { subscribeToAllOrders, updateOrderStatus } from "@/supabase/orders";
+import { subscribeToAllOrders, updateOrderStatus, deleteOrder } from "@/supabase/orders";
+import ConfirmDialog from "@/components/ConfirmDialog/ConfirmDialog";
 import { signOut, onAuthChange } from "@/supabase/auth";
 import { uploadProductImage } from "@/supabase/storage";
-import { Edit2, Trash2, Check, X, Eye, EyeOff, Plus, List, LogOut, Search, ClipboardList, Upload, Loader2 } from 'lucide-react';
+import { Edit2, Trash2, Check, X, Eye, EyeOff, Plus, List, LogOut, Search, ClipboardList, Upload, Loader2, Sparkles, ExternalLink, Info } from 'lucide-react';
 import { handleImgError } from "@/utils/imageHelpers";
 
 function ImageUploader({ imageUrl, onUploaded, error }) {
-  const [processing, setProcessing] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(imageUrl || '');
   const [uploadError, setUploadError] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     setPreview(imageUrl || '');
   }, [imageUrl]);
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -27,50 +30,115 @@ function ImageUploader({ imageUrl, onUploaded, error }) {
     }
 
     setUploadError('');
+    setSelectedFile(file);
     setPreview(URL.createObjectURL(file));
-    setProcessing(true);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+
+    setUploading(true);
+    setUploadError('');
 
     try {
-      const url = await uploadProductImage(file);
+      const url = await uploadProductImage(selectedFile);
       setPreview(url);
       onUploaded(url);
+      setSelectedFile(null);
     } catch (err) {
       setUploadError('فشل رفع الصورة: ' + (err.message || 'خطأ غير معروف'));
-      setPreview(imageUrl || '');
     } finally {
-      setProcessing(false);
+      setUploading(false);
     }
   };
+
+  const fileInputRef = useRef(null);
 
   return (
     <div>
       <label className="block text-gray-700 mb-2 font-bold">صورة المنتج</label>
-      <div className="flex items-center gap-2 mb-3">
-        <Upload size={16} className="text-blue-600" />
-        <span className="text-sm text-gray-600">اختر صورة من جهازك (سيتم رفعها إلى التخزين السحابي)</span>
-      </div>
 
       <input
+        ref={fileInputRef}
         type="file"
         accept="image/*"
         onChange={handleFileChange}
-        className="w-full border border-gray-300 rounded-lg p-3 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 file:font-medium file:cursor-pointer"
+        disabled={uploading}
+        className="hidden"
       />
 
-      {processing && (
+      <div className="flex items-center gap-2 flex-wrap">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+        >
+          <Upload size={14} />
+          <span>اختر صورة من جهازك</span>
+        </button>
+
+        <a
+          href="https://www.pixelcut.ai/background-remover"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-lg transition"
+        >
+          <Sparkles size={14} />
+          <span>تحسين الصورة</span>
+          <ExternalLink size={12} />
+        </a>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowTooltip(!showTooltip)}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+            className="text-gray-400 hover:text-gray-600 transition"
+            aria-label="معلومات"
+          >
+            <Info size={16} />
+          </button>
+          {showTooltip && (
+            <div className="absolute bottom-full right-0 mb-2 w-56 bg-gray-800 text-white text-xs rounded-lg p-3 shadow-lg z-50 leading-relaxed">
+              <p className="font-bold mb-1">خطوات تحسين الصورة:</p>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>ارفع الصورة على Pixelcut</li>
+                <li>حمّل النتيجة</li>
+                <li>ارجع وارفعها هنا</li>
+              </ol>
+              <div className="absolute bottom-0 right-4 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-800"></div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {uploading && (
         <div className="flex items-center gap-2 mt-2">
           <Loader2 size={16} className="text-blue-600 animate-spin" />
-          <p className="text-sm text-blue-600 font-medium">جاري معالجة الصورة...</p>
+          <p className="text-sm text-blue-600 font-medium">جاري رفع الصورة...</p>
         </div>
       )}
 
       {error && <p className="text-red-500 text-sm mt-1 font-medium">{error}</p>}
       {uploadError && <p className="text-red-500 text-sm mt-1 font-medium">{uploadError}</p>}
 
-      {preview && !processing && (
+      {preview && (
         <div className="mt-3">
           <img src={preview} alt="معاينة" className="w-24 h-24 object-cover rounded-lg border shadow-sm" onError={(e) => { e.target.style.display = 'none'; }} />
         </div>
+      )}
+
+      {selectedFile && (
+        <button
+          type="button"
+          onClick={handleUpload}
+          disabled={uploading}
+          className="mt-3 bg-green-500 hover:bg-green-600 text-white text-sm font-bold px-4 py-2 rounded-lg transition disabled:opacity-50"
+        >
+          {uploading ? 'جاري الرفع...' : 'تأكيد ورفع الصورة'}
+        </button>
       )}
     </div>
   );
@@ -275,6 +343,7 @@ export default function AdminPage() {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
 
   useEffect(() => {
     const unsubscribe = onAuthChange((currentUser) => {
@@ -396,14 +465,25 @@ export default function AdminPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟')) {
-      try {
-        await deleteProduct(id);
-      } catch (err) {
-        alert(err.message);
-      }
-    }
+  const handleDelete = (product) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'حذف المنتج',
+      message: `هل أنت متأكد من حذف "${product.name}" نهائياً؟ سيتم حذف الصورة المرتبطة أيضاً.`,
+      loading: false,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, loading: true }));
+        try {
+          await deleteProduct(product.id, product.imageUrl);
+          setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
+          setSuccessMsg('تم حذف المنتج بنجاح');
+          setTimeout(() => setSuccessMsg(''), 3000);
+        } catch (err) {
+          setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
+          setError('فشل حذف المنتج: ' + err.message);
+        }
+      },
+    });
   };
 
   const handleToggleActive = async (product) => {
@@ -606,7 +686,7 @@ export default function AdminPage() {
                                   <button onClick={() => handleEditClick(product)} className="text-blue-600 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition shadow-sm" title="تعديل">
                                     <Edit2 size={18} />
                                   </button>
-                                  <button onClick={() => handleDelete(product.id)} className="text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition shadow-sm" title="حذف">
+                                  <button onClick={() => handleDelete(product)} className="text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition shadow-sm" title="حذف">
                                     <Trash2 size={18} />
                                   </button>
                                 </>
@@ -862,7 +942,7 @@ export default function AdminPage() {
                                 تعديل
                               </button>
                               <button
-                                onClick={() => handleDelete(product.id)}
+                                onClick={() => handleDelete(product)}
                                 className="flex-1 min-h-[44px] text-red-600 bg-red-50 hover:bg-red-100 rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition"
                               >
                                 <Trash2 size={18} />
@@ -1015,6 +1095,15 @@ export default function AdminPage() {
         {tab === 'orders' && <OrdersTab />}
 
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        loading={confirmDialog.loading}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null, loading: false })}
+      />
     </div>
   );
 }
@@ -1032,6 +1121,7 @@ function OrdersTab() {
   const [error, setError] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
 
   useEffect(() => {
     const unsubscribe = subscribeToAllOrders((data) => {
@@ -1052,6 +1142,27 @@ function OrdersTab() {
     } finally {
       setUpdatingId(null);
     }
+  };
+
+  const handleDeleteOrder = (order) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'حذف الطلب',
+      message: `هل أنت متأكد من حذف الطلب رقم ${order.orderNumber || order.id.slice(0, 8)}؟ لا يمكن التراجع عن هذا الإجراء.`,
+      loading: false,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, loading: true }));
+        try {
+          await deleteOrder(order.id);
+          setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
+          setSuccessMsg('تم حذف الطلب بنجاح');
+          setTimeout(() => setSuccessMsg(''), 3000);
+        } catch (err) {
+          setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
+          alert('فشل حذف الطلب: ' + err.message);
+        }
+      },
+    });
   };
 
   const formatDate = (ts) => {
@@ -1082,6 +1193,15 @@ function OrdersTab() {
 
       {successMsg && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 font-medium">{successMsg}</div>}
 
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        loading={confirmDialog.loading}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null, loading: false })}
+      />
+
       {orders.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border p-12 text-center text-gray-500 font-medium">
           لا توجد طلبات حالياً
@@ -1099,6 +1219,7 @@ function OrdersTab() {
                   <th className="p-4 font-bold text-gray-700">المجموع</th>
                   <th className="p-4 font-bold text-gray-700">الحالة</th>
                   <th className="p-4 font-bold text-gray-700 hidden md:table-cell">التاريخ</th>
+                  <th className="p-4 font-bold text-gray-700">الإجراءات</th>
                 </tr>
               </thead>
               <tbody>
@@ -1143,6 +1264,15 @@ function OrdersTab() {
                     </td>
                     <td className="p-4 hidden md:table-cell text-sm text-gray-500">
                       {formatDate(order.createdAt)}
+                    </td>
+                    <td className="p-4 text-center">
+                      <button
+                        onClick={() => handleDeleteOrder(order)}
+                        className="text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition shadow-sm"
+                        title="حذف الطلب"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -1198,12 +1328,12 @@ function OrdersTab() {
                     <span className="text-xs text-gray-500">{formatDate(order.createdAt)}</span>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-gray-100">
+                  <div className="mt-4 pt-3 border-t border-gray-100 flex gap-3">
                     <select
                       value={currentStatus}
                       onChange={(e) => handleStatusChange(order.id, e.target.value)}
                       disabled={updatingId === order.id}
-                      className={`w-full min-h-[44px] border border-gray-300 rounded-lg px-3 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
+                      className={`flex-1 min-h-[44px] border border-gray-300 rounded-lg px-3 py-2.5 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
                         updatingId === order.id ? "opacity-50 cursor-wait" : "cursor-pointer"
                       }`}
                     >
@@ -1211,6 +1341,13 @@ function OrdersTab() {
                         <option key={s.value} value={s.value}>{s.label}</option>
                       ))}
                     </select>
+                    <button
+                      onClick={() => handleDeleteOrder(order)}
+                      className="min-h-[44px] px-4 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg flex items-center justify-center transition"
+                      title="حذف الطلب"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 </div>
               );
