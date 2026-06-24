@@ -505,13 +505,13 @@ export default function AdminPage() {
   if (!user) return null;
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gray-50 font-sans">
+    <div dir="rtl" className="min-h-screen bg-gray-50 font-sans overflow-x-hidden">
       <div className="admin-page max-w-6xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6 border-b pb-4">
-        <div className="flex gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6 border-b pb-4">
+        <div className="flex flex-wrap gap-2 sm:gap-4">
           <button
             onClick={() => setTab('list')}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition ${
+            className={`flex items-center gap-1.5 px-3 sm:px-5 py-2 rounded-lg font-bold text-sm sm:text-base transition ${
               tab === 'list' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-100 shadow-sm'
             }`}
           >
@@ -519,7 +519,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setTab('add')}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition ${
+            className={`flex items-center gap-1.5 px-3 sm:px-5 py-2 rounded-lg font-bold text-sm sm:text-base transition ${
               tab === 'add' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-100 shadow-sm'
             }`}
           >
@@ -527,7 +527,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setTab('orders')}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-bold transition ${
+            className={`flex items-center gap-1.5 px-3 sm:px-5 py-2 rounded-lg font-bold text-sm sm:text-base transition ${
               tab === 'orders' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-100 shadow-sm'
             }`}
           >
@@ -536,7 +536,7 @@ export default function AdminPage() {
         </div>
           <button
             onClick={() => signOut()}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-red-600 hover:bg-red-50 transition"
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg font-bold text-red-600 hover:bg-red-50 transition text-sm sm:text-base"
           >
             <LogOut size={18} /> تسجيل خروج
           </button>
@@ -549,7 +549,7 @@ export default function AdminPage() {
           <div>
             <div className="bg-white rounded-xl shadow-sm border p-4 mb-4">
               <div className="flex flex-wrap gap-3 items-center">
-                <div className="relative flex-1 min-w-[200px]">
+                <div className="relative flex-1 min-w-0 sm:min-w-[200px]">
                   <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
