@@ -24,7 +24,9 @@
       "Bash(grep -v \"^\\\\.\\\\.$\")",
       "Bash(ANALYZE=true npm run build)",
       "Bash(sort -t: -k2 -n -r)",
-      "Bash(sort -t: -k4 -n -r)"
+      "Bash(sort -t: -k4 -n -r)",
+      "Bash(grep *)",
+      "Bash(cp *)"
     ]
   }
 }

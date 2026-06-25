@@ -5,14 +5,14 @@ import { ShoppingBag, MapPin } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useLang } from "@/context/LanguageContext";
-import ConstellationBackground from "@/components/ConstellationBackground/ConstellationBackground";
+import GridScan from "@/components/GridScan";
+import RotatingText from "@/components/RotatingText";
 import "./Hero.css";
 
-function HeroHeadline({ line1, line2 }) {
+function HeroHeadline({ line1, line2, rotatingTexts }) {
   const containerRef = useRef(null);
   const line2Ref = useRef(null);
   const line1Words = line1.split(" ");
-  const line2Words = line2.split(" ");
 
   useGSAP(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -38,13 +38,27 @@ function HeroHeadline({ line1, line2 }) {
         ))}
       </span>
       <span ref={line2Ref} className="hero-line hero-line-2">
-        {line2Words.map((word, i) => (
-          <span key={i} className="word-wrapper" style={{ display: "inline-block", overflow: "hidden" }}>
-            <span className="word" style={{ display: "inline-block" }}>
-              {word}&nbsp;
+        {rotatingTexts ? (
+          <RotatingText
+            texts={rotatingTexts}
+            rotationInterval={2800}
+            staggerFrom="last"
+            staggerDuration={0.025}
+            transition={{ type: "spring", damping: 30, stiffness: 400 }}
+            loop={true}
+            auto={true}
+            mainClassName="hero-rotating-word"
+            elementLevelClassName="hero-rotating-char"
+          />
+        ) : (
+          line2.split(" ").map((word, i) => (
+            <span key={i} className="word-wrapper" style={{ display: "inline-block", overflow: "hidden" }}>
+              <span className="word" style={{ display: "inline-block" }}>
+                {word}&nbsp;
+              </span>
             </span>
-          </span>
-        ))}
+          ))
+        )}
       </span>
     </h1>
   );
@@ -115,13 +129,24 @@ export default function Hero({ products = [] }) {
     <section ref={heroRef} className="hero-new">
       <div className="hero-grid-bg" aria-hidden="true" />
 
-      <ConstellationBackground />
+      <GridScan
+        scanColor="#3B82F6"
+        linesColor="#162049"
+        bloomIntensity={0.4}
+        scanOpacity={0.4}
+        gridScale={0.1}
+        sensitivity={0.55}
+      />
 
       <div className="hero-content">
         {isAr ? (
           <HeroHeadline line1="متجر الهواتف:" line2="وجهتك الأولى" />
         ) : (
-          <HeroHeadline line1="Phone Store: Your First" line2="Destination" />
+          <HeroHeadline
+            line1="Phone Store: Your First"
+            line2="Destination"
+            rotatingTexts={['Destination', 'Choice', 'Priority', 'Stop']}
+          />
         )}
 
         <p className="hero-subtitle font-tajawal">
