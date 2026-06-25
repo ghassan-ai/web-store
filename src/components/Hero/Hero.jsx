@@ -5,14 +5,14 @@ import { ShoppingBag, MapPin } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useLang } from "@/context/LanguageContext";
-import ConstellationBackground from "@/components/ConstellationBackground/ConstellationBackground";
+import GridScan from "@/components/GridScan";
+import RotatingText from "@/components/RotatingText";
 import "./Hero.css";
 
-function HeroHeadline({ line1, line2 }) {
+function HeroHeadline({ line1, line2, rotatingTexts }) {
   const containerRef = useRef(null);
   const line2Ref = useRef(null);
   const line1Words = line1.split(" ");
-  const line2Words = line2.split(" ");
 
   useGSAP(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -31,60 +31,45 @@ function HeroHeadline({ line1, line2 }) {
       <span className="hero-line shimmer-text">
         {line1Words.map((word, i) => (
           <span key={i} className="word-wrapper" style={{ display: "inline-block", overflow: "hidden" }}>
-            <span className="word" style={{ display: "inline-block" }}>
+            <span className="hero-word" style={{ display: "inline-block" }}>
               {word}&nbsp;
             </span>
           </span>
         ))}
       </span>
       <span ref={line2Ref} className="hero-line hero-line-2">
-        {line2Words.map((word, i) => (
-          <span key={i} className="word-wrapper" style={{ display: "inline-block", overflow: "hidden" }}>
-            <span className="word" style={{ display: "inline-block" }}>
-              {word}&nbsp;
+        {rotatingTexts ? (
+          <RotatingText
+            texts={rotatingTexts}
+            rotationInterval={2800}
+            staggerFrom="last"
+            staggerDuration={0.025}
+            transition={{ type: "spring", damping: 30, stiffness: 400 }}
+            loop={true}
+            auto={true}
+            mainClassName="hero-rotating-word"
+            elementLevelClassName="hero-rotating-char"
+          />
+        ) : (
+          line2.split(" ").map((word, i) => (
+            <span key={i} className="word-wrapper" style={{ display: "inline-block", overflow: "hidden" }}>
+              <span className="hero-word" style={{ display: "inline-block" }}>
+                {word}&nbsp;
+              </span>
             </span>
-          </span>
-        ))}
+          ))
+        )}
       </span>
     </h1>
   );
 }
 
 function StatNumber({ value, suffix }) {
-  const ref = useRef(null);
-  const target = parseInt(value, 10);
-  const isNumeric = !isNaN(target);
-
-  useGSAP(() => {
-    if (!isNumeric || !ref.current) return;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) {
-      ref.current.textContent = target + (suffix || "");
-      return;
-    }
-    const obj = { val: 0 };
-    gsap.to(obj, {
-      val: target,
-      duration: 1.2,
-      delay: 0.8,
-      ease: "power2.out",
-      onUpdate: () => {
-        ref.current.textContent = Math.floor(obj.val) + (suffix || "");
-      },
-    });
-  }, []);
-
-  if (!isNumeric) {
-    return (
-      <span className="hero-stat__value font-mono stat-item">
-        {value}
-      </span>
-    );
-  }
+  const isNumeric = !isNaN(parseInt(value, 10));
 
   return (
-    <span ref={ref} className="hero-stat__value font-mono stat-item">
-      0{suffix || ""}
+    <span className="hero-stat__value font-mono stat-item">
+      {value}{isNumeric ? (suffix || "") : ""}
     </span>
   );
 }
@@ -105,28 +90,39 @@ export default function Hero({ products = [] }) {
     if (reducedMotion) return;
 
     const tl = gsap.timeline();
-    tl.from(".word", { y: 24, opacity: 0, duration: 0.5, stagger: 0.08, ease: "power3.out" })
-      .from(".hero-subtitle", { y: 16, opacity: 0, duration: 0.5, ease: "power2.out" }, "-=0.3")
-      .from(".hero-ctas", { y: 16, opacity: 0, duration: 0.4, ease: "power2.out" }, "-=0.2")
-      .from(".stat-item", { opacity: 0, y: 10, duration: 0.4, stagger: 0.12, ease: "power2.out" }, "-=0.1");
+    tl.from(".hero-word", { y: 6, duration: 0.35, stagger: 0.04, ease: "power2.out" })
+      .from(".hero-subtitle", { y: 6, duration: 0.3, ease: "power2.out" }, "-=0.2")
+      .from(".hero-ctas", { y: 6, duration: 0.3, ease: "power2.out" }, "-=0.15")
+      .from(".stat-item", { y: 4, duration: 0.3, stagger: 0.06, ease: "power2.out" }, "-=0.1");
   }, { scope: heroRef });
 
   return (
     <section ref={heroRef} className="hero-new">
       <div className="hero-grid-bg" aria-hidden="true" />
 
-      <ConstellationBackground />
+      <GridScan
+        scanColor="#3B82F6"
+        linesColor="#162049"
+        bloomIntensity={0.4}
+        scanOpacity={0.4}
+        gridScale={0.1}
+        sensitivity={0.55}
+      />
 
       <div className="hero-content">
         {isAr ? (
           <HeroHeadline line1="متجر الهواتف:" line2="وجهتك الأولى" />
         ) : (
-          <HeroHeadline line1="Phone Store: Your First" line2="Destination" />
+          <HeroHeadline
+            line1="Phone Store: Your First"
+            line2="Destination"
+            rotatingTexts={['Destination', 'Choice', 'Priority', 'Stop']}
+          />
         )}
 
         <p className="hero-subtitle font-tajawal">
           {isAr
-            ? "أرخص اكسسوارات الهواتف المتدرة في لبنان - جودة يمكنك الوثوق بها"
+            ? "أرخص اكسسوارات الهواتف المتوفرة في لبنان - جودة يمكنك الوثوق بها"
             : "The most affordable phone accessories in Lebanon - quality you can trust"}
         </p>
 

@@ -2,11 +2,6 @@
    HERO — Navy gradient + grid
    ═══════════════════════════════════════════════════════════ */
 
-@keyframes heroFadeIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 @keyframes trailPulse {
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
@@ -22,7 +17,6 @@
   padding: 80px 24px 60px;
   background: linear-gradient(160deg, #0B1430 0%, #101E3D 40%, #162850 75%, #1A3060 100%);
   overflow: hidden;
-  animation: heroFadeIn 0.9s ease-out forwards;
 }
 
 .hero-new::after {
@@ -79,6 +73,17 @@
 .hero-line-2 {
   color: #3D8BFF;
   text-shadow: 0 0 10px rgba(61, 139, 255, 0.3);
+}
+
+.hero-rotating-word {
+  color: #3D8BFF;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.hero-rotating-char {
+  color: #3D8BFF;
 }
 
 /* ─── Subtitle ─── */
@@ -330,12 +335,13 @@
   }
 
   .hero-headline {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
   }
 
 
   .hero-stats {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
 }

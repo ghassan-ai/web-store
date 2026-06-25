@@ -66,15 +66,19 @@ function Navbar({ cartCount = 0, onCartClick }) {
   const updateUnderline = useCallback(() => {
     if (!desktopLinksRef.current || !underlineRef.current) return;
     const container = desktopLinksRef.current;
-    const activeLink = container.querySelector(`a[href="${pathname}"]`);
+    const activeLink = container.querySelector(`a[data-path="${pathname}"]:not([data-hash])`);
     if (!activeLink) {
-      gsap.to(underlineRef.current, { opacity: 0, duration: 0.2 });
+      if (underlineRef.current.dataset.initialized) {
+        gsap.to(underlineRef.current, { opacity: 0, duration: 0.2 });
+      }
       return;
     }
     const containerRect = container.getBoundingClientRect();
     const linkRect = activeLink.getBoundingClientRect();
     const targetLeft = linkRect.left - containerRect.left;
     const targetWidth = linkRect.width;
+
+    if (targetWidth === 0) return;
 
     if (underlineRef.current.dataset.initialized) {
       gsap.to(underlineRef.current, {
@@ -86,13 +90,18 @@ function Navbar({ cartCount = 0, onCartClick }) {
       });
     } else {
       gsap.set(underlineRef.current, { left: targetLeft, width: targetWidth });
-      gsap.from(underlineRef.current, { scaleX: 0, opacity: 0, duration: 0.3 });
+      gsap.fromTo(underlineRef.current,
+        { scaleX: 0, opacity: 0 },
+        { scaleX: 1, opacity: 1, duration: 0.3, ease: "power2.out" }
+      );
       underlineRef.current.dataset.initialized = "true";
     }
-  }, [pathname]);
+  }, [pathname, lang]);
 
   useEffect(() => {
-    updateUnderline();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => updateUnderline());
+    });
     const handleResize = () => updateUnderline();
     let timer;
     const debouncedResize = () => {
@@ -167,11 +176,14 @@ function Navbar({ cartCount = 0, onCartClick }) {
 
             {/* Desktop Navigation */}
             <div ref={desktopLinksRef} className="hidden lg:flex items-center gap-1 relative">
-              {siteConfig.navLinks.map((link) => (
-                link.path.startsWith("/") && !link.path.includes("#") ? (
+              {siteConfig.navLinks.map((link) => {
+                const linkPath = link.path.split("#")[0] || "/";
+                const isHash = link.path.includes("#");
+                return !isHash ? (
                   <Link
                     key={link.path}
                     href={link.path}
+                    data-path={linkPath}
                     className="nav-link"
                   >
                     {isAr ? link.label : link.labelEn}
@@ -180,12 +192,14 @@ function Navbar({ cartCount = 0, onCartClick }) {
                   <a
                     key={link.path}
                     href={link.path}
+                    data-path={linkPath}
+                    data-hash=""
                     className="nav-link"
                   >
                     {isAr ? link.label : link.labelEn}
                   </a>
-                )
-              ))}
+                );
+              })}
               {/* Animated underline */}
               <span
                 ref={underlineRef}
