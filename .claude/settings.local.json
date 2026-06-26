@@ -27,7 +27,10 @@
       "Bash(sort -t: -k4 -n -r)",
       "Bash(grep *)",
       "Bash(cp *)",
-      "Bash(echo \"---status: $?\")"
+      "Bash(echo \"---status: $?\")",
+      "Read(//tmp/**)",
+      "Bash(pkill -f \"next\")",
+      "Bash(xargs cat)"
     ]
   }
 }

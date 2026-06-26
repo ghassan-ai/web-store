@@ -135,42 +135,6 @@ input[type="search"]::-webkit-search-decoration {
   animation: fadeIn 0.5s ease-out forwards;
 }
 
-/* Status bar pulsing dot */
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.status-pulse {
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   ADMIN PAGE
-   ═══════════════════════════════════════════════════════════ */
-
-.tabs {
-  border-bottom: 1.5px solid #2A3A6B;
-  margin-bottom: 2rem;
-}
-
-.tab-btn {
-  background: #16234A;
-  border: none;
-  border-radius: 7px 7px 0 0;
-  padding: 7px 18px;
-  font-weight: bold;
-  color: #A8B4D6;
-  font-size: 1.05rem;
-  cursor: pointer;
-  transition: background 0.13s, color 0.13s;
-}
-
-.tab-btn:hover,
-.tab-btn.active {
-  background: #0B1430;
-  color: #fff;
-}
 
 /* ═══════════════════════════════════════════════════════════
    LOGIN PAGE
