@@ -6,6 +6,7 @@
   opacity: 0;
   transition: opacity 0.8s ease-out;
 }
+
 .gridscan--ready {
   opacity: 1;
 }

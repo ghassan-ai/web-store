@@ -64,6 +64,8 @@
   color: #ffffff;
   line-height: 1.25;
   max-width: 600px;
+  width: 100%;
+  text-align: center;
 }
 
 .hero-line {
