@@ -30,7 +30,8 @@
       "Bash(echo \"---status: $?\")",
       "Read(//tmp/**)",
       "Bash(pkill -f \"next\")",
-      "Bash(xargs cat)"
+      "Bash(xargs cat)",
+      "Bash(xxd)"
     ]
   }
 }

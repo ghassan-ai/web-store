@@ -32,7 +32,7 @@ function HeroHeadline({ line1, line2, rotatingTexts }) {
         {line1Words.map((word, i) => (
           <span key={i} className="word-wrapper" style={{ display: "inline-block", overflow: "hidden" }}>
             <span className="hero-word" style={{ display: "inline-block" }}>
-              {word}&nbsp;
+              {word}{i < line1Words.length - 1 ? ' ' : ''}
             </span>
           </span>
         ))}
