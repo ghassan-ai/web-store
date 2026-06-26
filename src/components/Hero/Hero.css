@@ -71,9 +71,20 @@
   align-items: center;
 }
 
+.hero-line {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .hero-line-2 {
   color: #3D8BFF;
   text-shadow: 0 0 10px rgba(61, 139, 255, 0.3);
+}
+
+.hero-line .hero-word.shimmer-text {
+  background-size: 400% auto;
 }
 
 .hero-rotating-word {

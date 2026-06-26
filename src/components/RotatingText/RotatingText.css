@@ -1,7 +1,6 @@
 .text-rotate {
   display: inline-flex;
   overflow: hidden;
-  vertical-align: baseline;
 }
 
 .text-rotate-sr-only {
