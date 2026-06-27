@@ -50,9 +50,9 @@ export default function LoginPage() {
         className="login-card bg-white rounded-lg shadow max-w-md w-full p-8 flex flex-col gap-5"
         style={{ direction: "rtl" }}
       >
-        <h1 className="text-xl text-center font-bold mb-2">دخول الأدمن</h1>
+        <h1 className="text-xl text-center font-bold mb-2 text-[var(--text-dark)]">دخول الأدمن</h1>
         <div>
-          <label className="block text-sm mb-1">البريد الإلكتروني</label>
+          <label className="block text-sm mb-1 text-[var(--text-dark)]">البريد الإلكتروني</label>
           <input
             type="email"
             className="login-inp"
@@ -64,7 +64,7 @@ export default function LoginPage() {
           />
         </div>
         <div>
-          <label className="block text-sm mb-1">كلمة المرور</label>
+          <label className="block text-sm mb-1 text-[var(--text-dark)]">كلمة المرور</label>
           <input
             type="password"
             className="login-inp"
